@@ -1,1 +1,1 @@
-# Rock-Paper-Scissors-Lizard-Spock-Game
+# RPS - Game

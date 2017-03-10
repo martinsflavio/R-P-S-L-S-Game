@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R-P-S-L-S <-> Game</title>
+    <link rel="stylesheet" href="./assets/css/bootstrap.css">
+    <link rel="stylesheet" href="./assets/css/main.css">
+  </head>
+
+  <body>
+    <div class="container">
+      <!--================== Game Panel ============================-->
+      <div id="game" class="panel panel-info text-center">
+        <div class="panel-body">
+          <!--================== row 1 =============================-->
+          <div class="row">
+            <div class="col-sm-12 center">
+              <div class="panel panel-info">
+                <div class="panel-body">
+                  <h1>R P S L S - Game</h1>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--================== row 2 =============================-->
+          <div class="row row2">
+            <!--================== Player 1 =============================-->
+            <div class="col-sm-3 player-box">
+              <div class="panel-game panel panel-info">
+                <div class="panel-body">
+                <div class="row">
+                  <a href="#"> <img class="game-item nounderline" data-value="rock" src="./assets/images/rock.png"> </a>
+                  <a href="#"> <img class="game-item nounderline" data-value="paper" src="./assets/images/paper.png"> </a>
+                  <a href="#"> <img class="game-item nounderline" data-value="scissors" src="./assets/images/scissors.png"> </a>
+                  <a href="#"> <img class="game-item nounderline" data-value="lizard" src="./assets/images/lizard.png"> </a>
+                  <a href="#"> <img class="game-item nounderline" data-value="spock" src="./assets/images/spock.png"> </a>
+                </div>
+                <div class="row">
+                  <h3>Player 1</h3>
+                </div>
+                </div>
+              </div>
+            </div>
+            <!--================== Fight Panel =============================-->
+            <div class="col-sm-6">
+              <div class="panel-game panel panel-info">
+                <div class="panel-body">
+                  
+                  <div class="fight-box row">
+                    <!-- P1 container -->
+                    <div class="col-xs-4">
+                      <div class="row">
+                      <a href="#"> <img class="game-item nounderline" data-value="lizard" src="./assets/images/lizard.png"> </a> 
+                      </div>
+                      <div class="row">
+                        <h3>Player 1</h3>
+                      </div>
+                    </div>
+                    <!-- VS container -->
+                    <div id="vs-box" class="col-xs-4">
+                      <img class="game-item" src="./assets/images/vs.png">
+                    </div>
+                    <!-- P2 container -->
+                    <div class="col-xs-4">
+                      <div class="row">
+                        <a href="#"> <img class="game-item nounderline" data-value="spock" src="./assets/images/spock.png"> </a>  
+                      </div>
+                      <div class="row">
+                        <h3>Player 2</h3>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Dialog Box -->
+                  <hr>
+                  <div class="row">
+                    <h4>Display Description of the game</h4>
+                  </div>
+                </div>
+              </div>  
+            </div>
+            <!--================== Player 2 =============================-->
+            <div class="col-sm-3 player-box">
+              <div class="panel-game panel panel-info">
+                <div class="panel-body">
+                  <div class="row">
+                    <a href="#"> <img class="game-item nounderline" data-value="rock" src="./assets/images/rock.png"> </a>
+                    <a href="#"> <img class="game-item nounderline" data-value="paper" src="./assets/images/paper.png"> </a>
+                    <a href="#"> <img class="game-item nounderline" data-value="scissors" src="./assets/images/scissors.png"> </a>
+                    <a href="#"> <img class="game-item nounderline" data-value="lizard" src="./assets/images/lizard.png"> </a>
+                    <a href="#"> <img class="game-item nounderline" data-value="stock" src="./assets/images/spock.png"> </a>
+                  </div>
+                  <div class="row">
+                    <h3>Player 2</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--================== row 3 =============================-->
+        <div class="row">
+          <div class="col-sm-8">
+            <div class="row">
+              <div class="col-sm-12">
+                <div class="panel-game panel panel-info">
+                  <div class="panel-body">
+                    <textarea class="form-control" rows="10"></textarea>
+                    <input type="text" class="form-control" placeholder="Text input">
+                    <button type="submit" class="btn btn-success btn-sm pull-right">Submit</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>         
+          </div>
+          <div class="col-sm-4">
+            <div class="panel-game panel panel-info">
+              <div class="panel-body">
+                <img class="img-responsive rule-img" src="./assets/images/rules.png">
+                <img class="img-responsive rule-img" src="./assets/images/legend.png">
+              </div>
+            </div>
+          </div>
+        </div>    
+        </div>
+      <!--================== End Game Panel =============================--> 
+      </div>
+    <!-- End Container -->
+    </div>
+
+
+    <!-- Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="./assets/js/main.js"></script>
+  </body>
+
+</html>

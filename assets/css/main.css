@@ -1,0 +1,26 @@
+
+#game {
+  background-image: url("../images/Bpage.png");
+}
+/*Centralize Verticaly the VS Img -----*/
+.fight-box{
+	display: flex;
+}
+#vs-box{
+	display: flex;
+}
+/* Images ------------------------*/
+.rule-img{
+	margin: auto;
+}
+.game-item{
+	height: 64px;
+	width: 64px;
+	margin: auto;
+}
+/*----------------------------------*/
+
+
+
+
+
