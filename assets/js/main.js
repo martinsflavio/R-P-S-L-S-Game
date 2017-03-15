@@ -38,112 +38,124 @@ function rps(p1, p2){
 	}
 }
 
-// firebase 
-var db = firebase.database();
+//Get Elements
+const $$ = {
+	//Player 1
+	p1 : $('#p1-name'),
+	p1Chose : $('.p1'),
+	p1Current : $('#p1-current'),
+	p1Win : $('#p1-win'),
+	p1Lose : $('#p1-lose'),
+	// Player 2
+	p2 : $('#p2-name'),
+	p2Chose : $('.p2'),
+	p2Current : $('#p2-current'),
+	p2Win : $('#p2-win'),
+	p2Lose : $('#p2-lose'),
+	// DOM
+	btnStart : $('#btn-start'),
+}
+//Create references
+const db = {
+	root : firebase.database(),
+	players : firebase.database().ref('players'),
+	p1 : firebase.database().ref('players/1'),
+	p2 : firebase.database().ref('players/2'),
+}
+// starting the game
+/*db.root.ref().child('.info/connected').on('value', snap =>{
+	console.log(snap.val());
+	if(snap.val() === true){
+		addPlayer("1");
+	}else{
+		addPlayer("2");
+	}
+});*/
+
+// Sync Players with the DataBase
+db.p1.on('value', snap => {
+	var obj = snap.val();
+	$$.p1.text(obj.name);
+	$$.p1Chose.text(obj.chose);
+	$$.p1Current.text(obj.chose);
+	$$.p1Win.text(obj.score.win);
+	$$.p1Lose.text(obj.score.lose);
+});
+db.p2.on('value', snap => {
+	var obj = snap.val();
+	$$.p2.text(obj.name);
+	$$.p2Chose.text(obj.chose);
+	$$.p2Current.text(obj.chose);
+	$$.p2Win.text(obj.score.win);
+	$$.p2Lose.text(obj.score.lose);
+});
+
 
 $(document).ready(function(){
-	//assign faribase to variable
-	var db = firebase.database();
-
-	//variables 
-	var player;
-
-
 	// Click Events	=================
 	// Start Form
-	$("#player-submit").on("click", function(){
-		player = $("#player-name").val().trim();
+	$$.btnStart.on("click", function(e){
+		e.preventDefault();
+
+		var player = $("#player-name").val().trim();
 		console.log(player);
-		
-		write("p1",player,"none");
 	});
 	// P1 Panel click event
-	$(".p1").on("click", function(){
+	$$.p1Chose.on("click", function(){
 		var chose = $(this).attr("data-value").trim();
-		console.log("p1",player,chose);
-			
-	});
-	// P2 Panel click event
-	$(".p2").on("click", function(){
-		var chose = $(this).attr("data-value").trim();
-		console.log(chose);	
+		db.p1.child('chose').set(chose);		
 		
 	});
-
+	// P2 Panel click event
+	$$.p2Chose.on("click", function(){
+		var chose = $(this).attr("data-value").trim();
+		db.p2.child('chose').set(chose);		
+	
+	});
 });
 
 
 
 
-	var test;
 
-	//===============================
-	var connectedRef = db.ref(".info/connected");
-	var test = db.ref("players");
-	
-	// When the client's connection state changes...
-	connectedRef.on("value", function(snap) {
-		test = snap;
-	  // If they are connected..
-	  //if (snap.val()) {
 
-	    // Add user to the connections list.
-	    //var con = connectionsRef.push(true);
 
-	    // Remove user from the connection list when they disconnect.
-	    //con.onDisconnect().remove();
-	  //}
-	  //console.log(snap + "  ./info/connected after if() ");
+
+
+
+
+
+
+
+
+
+
+
+
+
+function play(player){
+	const dbPlayer = firebase.database().ref('players/'+player);
+	dbPlayer.on('value', snap => {
 	});
+}
 
 
 
 
-	//-------------------------- insert player in data base
-	function write(id, name, rps) {
-	  db.ref('players/' + id).set({
-	    id: id,
-	    username: name,
-	    chose: rps,
-	  });
-	}
-	//-------------------------- return what the opponent chosed
-	function read(player){
-		var result = "";
-		var opponent = db.ref('players/' + player + '/chose');
-		opponent.on('value', function(snapshot) {
-		  result = snapshot.val();
-		});
-		return result;
-	}
-	//--------------------------
-	function playerPosition(){
 
-		var connectedRef = db.ref(".info/connected");
 
-		// When the client's connection state changes...
-		connectedRef.on("value", function(snap) {
-			console.log(snap + "  ./info/connected");
-		  // If they are connected..
-		  if (snap.val()) {
+function addPlayer(player){
+	const bdPlayer = firebase.database().ref('players').child(player).set({
+		name: "player "+player,
+		chose: "none",
+		on: false,
+		score: {
+			win:0,
+			lose:0
+		}
+	});
+}
 
-		    // Add user to the connections list.
-		    var con = connectionsRef.push(true);
-
-		    // Remove user from the connection list when they disconnect.
-		    con.onDisconnect().remove();
-		  }
-		  console.log(snap + "  ./info/connected after if() ");
-		});
-
-		// When first loaded or when the connections list changes...
-		connectionsRef.on("value", function(snap) {
-
-		  // Display the viewer count in the html.
-		  // The number of online users is the number of children in the connections list.
-		  //$("#watchers").html(snap.numChildren());
-		});
-	}
 
 
 
