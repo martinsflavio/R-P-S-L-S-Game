@@ -11,10 +11,10 @@
 
   <body>
     <div class="container">
-      <!--================== Game Panel ============================-->
+      <!--=== Game Panel ===-->
       <div id="game" class="panel panel-default text-center">
         <div class="panel-body">
-          <!--================== row 1 =============================-->
+          <!--=== row 1 ====-->
           <div class="row">
             <div class="col-sm-12 center">
               <div class="panel panel-default">
@@ -25,121 +25,139 @@
             </div>
           </div>
 
-          <!--================== row 2 =============================-->
+
+          <!--=== row 2 ====-->
           <div class="row">
-            <!--================== Player 1 =============================-->
-            <div class="col-sm-3 player-box">
-              <div class="panel panel-default">
-                <div class="panel-body">
-                <div class="row">
-                  <a href="#"> <img class="p1 game-item nounderline" data-value="rock" src="./assets/images/rock.png"> </a>
-                  <a href="#"> <img class="p1 game-item nounderline" data-value="paper" src="./assets/images/paper.png"> </a>
-                  <a href="#"> <img class="p1 game-item nounderline" data-value="scissors" src="./assets/images/scissors.png"> </a>
-                  <a href="#"> <img class="p1 game-item nounderline" data-value="lizard" src="./assets/images/lizard.png"> </a>
-                  <a href="#"> <img class="p1 game-item nounderline" data-value="spock" src="./assets/images/spock.png"> </a>
-                </div>
-                <div class="row">
-                  <h3 id="p1-name">Player 1</h3>
-                </div>
-                <div class="row">
-                  <div class="col-xs-6">
-                    <p>Win: <span id="p1-win"></span></p>
-                  </div>
-                  <div class="col-xs-6">
-                    <p>Lose: <span id="p1-lose"></span></p>
+            <div class="col-sm-8">
+              <div class="row">
+                <!--=== Player ===-->
+                <div class="player-box col-sm-6">
+                  <div class="panel panel-default">
+                    <div class="panel-body">
+                    <div class="row">
+                      <a href="#"> <img class="chose game-item nounderline" data-value="rock" src="./assets/images/rock.png"> </a>
+                      <a href="#"> <img class="chose game-item nounderline" data-value="paper" src="./assets/images/paper.png"> </a>
+                      <a href="#"> <img class="chose game-item nounderline" data-value="scissors" src="./assets/images/scissors.png"> </a>
+                      <a href="#"> <img class="chose game-item nounderline" data-value="lizard" src="./assets/images/lizard.png"> </a>
+                      <a href="#"> <img class="chose game-item nounderline" data-value="spock" src="./assets/images/spock.png"> </a>
+                    </div>
+                    <div class="row">
+                      <h3 id="display-player-name">Player</h3>
+                    </div>
+                    </div>
                   </div>
                 </div>
+                <div class="col-sm-6">
+                  <div class="panel panel-default">
+                    <div class="panel-body">
+                      <div class="row fight-box">
+                        <!-- P1 container -->
+                        <div class="col-xs-4">
+                         <h2 id="p1-current-chose"></h2>
+                        </div>
+                        <!-- VS container -->
+                        <div id="vs-box" class="col-xs-4">
+                          <img class="game-item" src="./assets/images/vs.png">
+                        </div>
+                        <!-- P2 container -->
+                        <div class="col-xs-4">
+                           <h2 id="p2-current-chose"></h2>    
+                        </div>
+                      </div>
+                      <!-- Dialog Box -->
+                      <hr>
+                      <div id="dialog-box" class="row">
+                        <div class="col-xs-12">
+                          <form class="form-inline">
+                              <input id="player-name" type="text" class="form-control input-sm text-center" placeholder="Player Name">
+                              <button id="btn-start" type="submit" class="btn btn-success btn-sm pull-right">Start</button>
+                          </form>
+                        </div>
+                      </div>
+                                        
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--=== Dialog Box ===-->
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="panel panel-default">
+                    <div class="panel-body">
+                      dialog box
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <!--================== Fight Panel =============================-->
-            <div class="col-sm-6">  
-              <div class="panel panel-default">
-                  <div class="panel-body">
-                    <div class="row fight-box">
-                      <!-- P1 container -->
-                      <div class="col-xs-4">
-                       <h2 id="p1-current"></h2>
+
+            <!--=== Scores ===-->
+            <div class="col-sm-4">
+              <div class="row">
+                <div class="col-xs-12 player-box">
+                  <div class="panel panel-default">
+                    <div class="panel-body">
+                      <div class="p1-score row">
+                        <div class="row">
+                          <h3 id="p1-name">Player 1</h3>
+                        </div>
+                        <div class="row">
+                          <p>Win: <span id="p1-win"></span></p>
+                        </div>
+                        <div class="row">
+                          <p>Lose: <span id="p1-lose"></span></p>
+                        </div>
                       </div>
-                      <!-- VS container -->
-                      <div id="vs-box" class="col-xs-4">
-                        <img class="game-item" src="./assets/images/vs.png">
-                      </div>
-                      <!-- P2 container -->
-                      <div class="col-xs-4">
-                         <h2 id="p2-current"></h2>    
+                        <div class="p12-score row">
+                          <div class="row">
+                            <h3 id="p2-name">Player 2</h3>
+                          </div>
+                          <div class="row">
+                            <p>Win: <span id="p2-win"></span></p>
+                          </div>
+                          <div class="row">
+                            <p>Lose: <span id="p2-lose"></span></p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <!-- Dialog Box -->
-                    <hr>
-                    <div id="dialog-box" class="row">
-                      <div class="col-xs-12">
-                        <form class="form-inline">
-                            <input id="player-name" type="text" class="form-control input-sm text-center" placeholder="Player Name">
-                            <button id="btn-start" type="submit" class="btn btn-success btn-sm pull-right">Start</button>
-                        </form>
-                      </div>
-                    </div>
                   </div>
-              </div> 
-            </div>
-            <!--================== Player 2 =============================-->
-            <div class="col-sm-3 player-box">
-              <div class="panel panel-default">
-                <div class="panel-body">
-                  <div class="row">
-                    <a href="#"> <img class="p2 game-item nounderline" data-value="rock" src="./assets/images/rock.png"> </a>
-                    <a href="#"> <img class="p2 game-item nounderline" data-value="paper" src="./assets/images/paper.png"> </a>
-                    <a href="#"> <img class="p2 game-item nounderline" data-value="scissors" src="./assets/images/scissors.png"> </a>
-                    <a href="#"> <img class="p2 game-item nounderline" data-value="lizard" src="./assets/images/lizard.png"> </a>
-                    <a href="#"> <img class="p2 game-item nounderline" data-value="stock" src="./assets/images/spock.png"> </a>
-                  </div>
-                  <div class="row">
-                    <h3 id="p2-name">Player 2</h3>  
-                  </div>
-                  <div class="row">
-                    <div class="col-xs-6">
-                      <p>Win: <span id="p2-win"></span></p>
-                    </div>
-                    <div class="col-xs-6">
-                      <p>Lose: <span id="p2-lose"></span></p>
-                    </div>
-                  </div>
-                </div>
+                </div> 
               </div>
             </div>
           </div>
 
-          <!--================== row 3 =============================-->
-        <div class="row">
-          <div class="col-sm-8">
-            <div class="row">
-              <div class="col-sm-12">
-                <div class="panel panel-default">
-                  <div class="panel-body">
-                    <textarea class="form-control" rows="10"></textarea>
-                    <input type="text" class="form-control" placeholder="Text input">
-                    <button type="submit" class="btn btn-success btn-sm pull-right">Submit</button>
+
+          <!--=== row 3 ====-->
+          <div class="row">
+            <div class="col-sm-8">
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="panel panel-default">
+                    <div class="panel-body">
+                      <textarea class="form-control" rows="10"></textarea>
+                      <input type="text" class="form-control" placeholder="Text input">
+                      <button type="submit" class="btn btn-success btn-sm pull-right">Submit</button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-            </div>         
-          </div>
-          <div class="col-sm-4">
-            <div class="panel-game panel panel-default">
-              <div class="panel-body">
-                <img class="img-responsive rule-img" src="./assets/images/rules.png">
-              
+              </div>         
+            </div>
+            <div class="col-sm-4">
+              <div class="panel-game panel panel-default">
+                <div class="panel-body">
+                  <img class="img-responsive rule-img" src="./assets/images/rules.png">
+                
+                </div>
               </div>
             </div>
-          </div>
-        </div>    
+          </div>    
         </div>
-      <!--================== End Game Panel =============================--> 
       </div>
-    <!-- End Container -->
+      <!--=== End Game Panel ===--> 
     </div>
+    <!-- En
 
 
     <!-- Jquery -->

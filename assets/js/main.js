@@ -41,22 +41,17 @@ function rpsls(p2, p1){
 //Get Elements
 const $$ = {
 	//Player 1
-	p1 : $('#p1-name'),
-	p1Chose : $('.p1'),
-	p1Current : $('#p1-current'),
+	playerName : $('#player-name'),
+	chose : $('.chose'),
+	p1Current : $('#p1-current-chose'),
+	p2Current : $('#p2-current-chose'),
 	p1Win : $('#p1-win'),
 	p1Lose : $('#p1-lose'),
-	// Player 2
-	p2 : $('#p2-name'),
-	p2Chose : $('.p2'),
-	p2Current : $('#p2-current'),
-	p2Win : $('#p2-win'),
-	p2Lose : $('#p2-lose'),
 	// DOM
 	btnStart : $('#btn-start'),
 }
 //Create references
-var db = {
+const db = {
 	root : firebase.database(),
 	players : firebase.database().ref('/players'),
 	p1 : firebase.database().ref('/players/1'),
@@ -67,28 +62,39 @@ var db = {
 //============= Connecting =======================
 //Take the .push() key and store in local variables
 // all players key
-var players;
+var opponent;
 // this player index who point to players array
 var me; 
 db.root.ref('.info/connected').on('value', snap => {
 	
   if (snap.val()) {
+  	// Look for Player Key
   	const status = db.root.ref('/players').push('on');
-  	db.root.ref('/players').once('value', snap =>{
-  		players = Object.keys(snap.val());
-  		me = Object.keys(snap.val()).length - 1;
-  	});
-  	status.onDisconnect().remove();
+  	db.root.ref('/players').once('value', function(snap){
+  		snap.forEach(function(childsnap){
+  			me = childsnap.key;
 
+  			// Look for Opponent Key
+  			db.players.on('value', function(snap){	
+  				var temp = Object.keys(snap.val());
+  				for(var i = 0; i<temp.length; i++){
+  					if(me === temp[i]){
+  						
+  					}else{
+  						opponent = temp[i];
+  					}
+  				}
+  			});
+  			//---------------------
+  		});
+  	});
+  	//-------------------
+  	status.onDisconnect().remove();
   }
 });
 //==================== Local copy of DB ==========
 
-db.players.on('value', function(snap){
-	
-	console.log('players');
-	console.log(snap.val());
-});
+
 //================================================
 
 
@@ -103,30 +109,26 @@ $(document).ready(function(){
 	// Start Form
 	$$.btnStart.on("click", function(e){
 		e.preventDefault();
-		var player = $("#player-name").val().trim();
-		write.player(player, players, me);
+		var player = $$.playerName.val().trim();
+		write.player(player, me);
+		console.log(player);
 	});
 
 	// P1 Panel click event
-	$$.p1Chose.on("click", function(){
+	$$.chose.on("click", function(){
 		var chose = $(this).attr("data-value").trim();
-		write.playerChose(chose,players[me]);			
+		write.playerChose(chose, me);			
 	});
 
-	// P2 Panel click event
-	$$.p2Chose.on("click", function(){
-		var chose = $(this).attr("data-value").trim();
-	});
 });
 
 
 var write = {
-	player: function(name,arrPlayers,player){
-		const dbRef = firebase.database().ref('/players').child(arrPlayers[player]);
+	player: function(name,key){
+		const dbRef = firebase.database().ref('/players').child(key);
 		dbRef.set({
 		  username: name,
 		  chose :'',
-		  player : 'Player '+(player+1),
 		  score :{
 		  	win : 0,
 		  	lose : 0
@@ -144,27 +146,6 @@ var write = {
 
 
 
-
-
-
-
-// Sync Players with the DataBase
-/*db.p1.on('value', snap => {
-	var obj = snap.val();
-	$$.p1.text(obj.name);
-	$$.p1Chose.text(obj.chose);
-	$$.p1Current.text(obj.chose);
-	$$.p1Win.text(obj.score.win);
-	$$.p1Lose.text(obj.score.lose);
-});
-db.p2.on('value', snap => {
-	var obj = snap.val();
-	$$.p2.text(obj.name);
-	$$.p2Chose.text(obj.chose);
-	$$.p2Current.text(obj.chose);
-	$$.p2Win.text(obj.score.win);
-	$$.p2Lose.text(obj.score.lose);
-});*/
 
 
 
