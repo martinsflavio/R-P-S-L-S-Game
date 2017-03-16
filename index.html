@@ -42,7 +42,7 @@
                       <a href="#"> <img class="chose game-item nounderline" data-value="spock" src="./assets/images/spock.png"> </a>
                     </div>
                     <div class="row">
-                      <h3 id="display-player-name">Player</h3>
+                      <h3 class="me-name-display">Player</h3>
                     </div>
                     </div>
                   </div>
@@ -69,7 +69,7 @@
                       <div id="dialog-box" class="row">
                         <div class="col-xs-12">
                           <form class="form-inline">
-                              <input id="player-name" type="text" class="form-control input-sm text-center" placeholder="Player Name">
+                              <input id="me-name-input" type="text" class="form-control input-sm text-center" placeholder="Player Name">
                               <button id="btn-start" type="submit" class="btn btn-success btn-sm pull-right">Start</button>
                           </form>
                         </div>
@@ -97,29 +97,28 @@
                 <div class="col-xs-12 player-box">
                   <div class="panel panel-default">
                     <div class="panel-body">
-                      <div class="p1-score row">
+                      <div class="me-score row">
                         <div class="row">
-                          <h3 id="p1-name">Player 1</h3>
+                          <h3 class="me-name-display">Me</h3>
                         </div>
                         <div class="row">
-                          <p>Win: <span id="p1-win"></span></p>
+                          <p>Win: <span id="me-win"></span></p>
                         </div>
                         <div class="row">
-                          <p>Lose: <span id="p1-lose"></span></p>
+                          <p>Lose: <span id="me-lose"></span></p>
                         </div>
                       </div>
-                        <div class="p12-score row">
-                          <div class="row">
-                            <h3 id="p2-name">Player 2</h3>
-                          </div>
-                          <div class="row">
-                            <p>Win: <span id="p2-win"></span></p>
-                          </div>
-                          <div class="row">
-                            <p>Lose: <span id="p2-lose"></span></p>
-                          </div>
+                      <div class="opponent-score row">
+                        <div class="row">
+                          <h3 id="opponent-name-display">Opponent</h3>
                         </div>
-                      </div>
+                        <div class="row">
+                          <p>Win: <span id="opponent-win"></span></p>
+                        </div>
+                        <div class="row">
+                          <p>Lose: <span id="opponent-lose"></span></p>
+                        </div>
+                      </div> 
                     </div>
                   </div>
                 </div> 

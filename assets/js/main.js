@@ -40,13 +40,16 @@ function rpsls(p2, p1){
 
 //Get Elements
 const $$ = {
-	//Player 1
-	playerName : $('#player-name'),
+	//Me
+	meNameInput : $('#me-name-input'),
+	meNameDisplay : $('.me-name-display'),
 	chose : $('.chose'),
-	p1Current : $('#p1-current-chose'),
-	p2Current : $('#p2-current-chose'),
-	p1Win : $('#p1-win'),
-	p1Lose : $('#p1-lose'),
+	meWin : $('#me-win'),
+	meLose : $('#me-lose'),
+	//Opponent
+	opponentNameDisplay : $('#opponent-name-display'),
+	opponentWin : $('#opponent-win'),
+	opponentLose : $('#opponent-lose'),
 	// DOM
 	btnStart : $('#btn-start'),
 }
@@ -54,34 +57,32 @@ const $$ = {
 const db = {
 	root : firebase.database(),
 	players : firebase.database().ref('/players'),
-	p1 : firebase.database().ref('/players/1'),
-	p2 : firebase.database().ref('/players/2'),
 	connected : firebase.database().ref('.info/connected'),
 }
 
 //============= Connecting =======================
 //Take the .push() key and store in local variables
 // all players key
-var opponent;
+var opponentKey;
 // this player index who point to players array
-var me; 
-db.root.ref('.info/connected').on('value', snap => {
+var meKey; 
+db.root.ref('.info/connected').on('value', function(snap) {
 	
   if (snap.val()) {
   	// Look for Player Key
   	const status = db.root.ref('/players').push('on');
   	db.root.ref('/players').once('value', function(snap){
   		snap.forEach(function(childsnap){
-  			me = childsnap.key;
+  			meKey = childsnap.key;
 
   			// Look for Opponent Key
   			db.players.on('value', function(snap){	
   				var temp = Object.keys(snap.val());
   				for(var i = 0; i<temp.length; i++){
-  					if(me === temp[i]){
-  						
+  					if(meKey === temp[i]){
+
   					}else{
-  						opponent = temp[i];
+  						opponentKey = temp[i];
   					}
   				}
   			});
@@ -92,15 +93,41 @@ db.root.ref('.info/connected').on('value', snap => {
   	status.onDisconnect().remove();
   }
 });
-//==================== Local copy of DB ==========
+//============== Monitoring db/players  ==========
+
+db.players.on('value', function(snap){
+	
+	if(typeof(meKey) === 'string'){
+		// Me
+		db.players.child(meKey).on('value', function(snap){
+			var dbMe = snap.val();
+			console.log(snap.val());
+			//========== DOM =============
+
+			$$.meNameDisplay.text(dbMe.username);
+			$$.meWin.text(dbMe.score.win);
+			$$.meLose.text(dbMe.score.lose);
+			//----------------------------
+		});
+	}
+
+	if(typeof(opponentKey) === 'string'){
+		// Opponent
+		db.players.child(opponentKey).on('value', function(snap){
+			var dbOpponent = snap.val();
+			console.log(snap.val());
+			//========== DOM =============
+			$$.opponentNameDisplay.text(dbOpponent.username);
+			$$.opponentWin.text(dbOpponent.score.win);
+			$$.opponentLose.text(dbOpponent.score.lose);
+			//----------------------------
+		});
+	}
+});
 
 
-//================================================
 
-
-
-
-
+//=================================================
 
 $(document).ready(function(){
 
@@ -109,15 +136,15 @@ $(document).ready(function(){
 	// Start Form
 	$$.btnStart.on("click", function(e){
 		e.preventDefault();
-		var player = $$.playerName.val().trim();
-		write.player(player, me);
-		console.log(player);
+		var playerName = $$.meNameInput.val().trim();
+		write.player(playerName, meKey);
+		console.log(playerName);
 	});
 
-	// P1 Panel click event
+	// Player Panel click event
 	$$.chose.on("click", function(){
 		var chose = $(this).attr("data-value").trim();
-		write.playerChose(chose, me);			
+		write.playerChose(chose, meKey);			
 	});
 
 });
