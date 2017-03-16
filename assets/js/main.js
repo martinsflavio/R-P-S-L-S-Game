@@ -61,19 +61,38 @@ const db = {
 	players : firebase.database().ref('players'),
 	p1 : firebase.database().ref('players/1'),
 	p2 : firebase.database().ref('players/2'),
+	connected : firebase.database().ref('.info/connected'),
 }
-// starting the game
-/*db.root.ref().child('.info/connected').on('value', snap =>{
+
+//============= Connecting =======================
+var players;
+var me;
+db.root.ref('.info/connected').on('value', snap => {
 	console.log(snap.val());
-	if(snap.val() === true){
-		addPlayer("1");
-	}else{
-		addPlayer("2");
-	}
-});*/
+  
+  if (snap.val()) {
+  	var status = db.root.ref('/players').push('on');
+  	db.root.ref('/players').once('value', snap =>{
+  		players = Object.keys(snap.val());
+  		console.log(snap.val());
+
+  		me = Object.keys(snap.val()).length - 1;
+  	});
+  	status.onDisconnect().remove();
+
+  }
+});
+//================================================
+
+
+
+
+
+
+
 
 // Sync Players with the DataBase
-db.p1.on('value', snap => {
+/*db.p1.on('value', snap => {
 	var obj = snap.val();
 	$$.p1.text(obj.name);
 	$$.p1Chose.text(obj.chose);
@@ -88,16 +107,20 @@ db.p2.on('value', snap => {
 	$$.p2Current.text(obj.chose);
 	$$.p2Win.text(obj.score.win);
 	$$.p2Lose.text(obj.score.lose);
-});
+});*/
 
 
 $(document).ready(function(){
+
+	
 	// Click Events	=================
 	// Start Form
 	$$.btnStart.on("click", function(e){
 		e.preventDefault();
 
 		var player = $("#player-name").val().trim();
+		write(player, players, me);
+
 		console.log(player);
 	});
 	// P1 Panel click event
@@ -115,57 +138,20 @@ $(document).ready(function(){
 });
 
 
+//-------------------------- insert player in data base
+function write(name, arrPlayers, player) {
+  const user = firebase.database().ref('/players').child(arrPlayers[player]);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function play(player){
-	const dbPlayer = firebase.database().ref('players/'+player);
-	dbPlayer.on('value', snap => {
-	});
+  user.set({
+    username: name,
+    chose :'',
+    player : 'p'+(player+1),
+    score :{
+    	win : 0,
+    	lose : 0
+    }
+  });
 }
-
-
-
-
-
-
-function addPlayer(player){
-	const bdPlayer = firebase.database().ref('players').child(player).set({
-		name: "player "+player,
-		chose: "none",
-		on: false,
-		score: {
-			win:0,
-			lose:0
-		}
-	});
-}
-
-
-
-
-
-
-
-
-
-
-
 
 
 
