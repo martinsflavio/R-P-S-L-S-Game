@@ -152,45 +152,54 @@ db.ref('turn').on('value', function(turnSnap){
 	if(turn === 4){
 		var winner;
 		var winnerTag;
-		var winResult;
-		var loserResult;
+		var whoWins;
+		var whoLoses;
 
 		winnerID = game.decideWiner(playersArr);
 		
 		//increments winner's  and loser's score
 		if(winnerID === 1){
-			winResult = 1;
-			loserResult = 2;
+			whoWins = 1;
+			whoLoses = 2;
+		}else if (winnerID === 2){
+			whoWins = 2;
+			whoLoses = 1;
 		}else{
-			winResult = 2;
-			loserResult = 1;
+			whoWins = 0;
+			whoLoses = 0;
 		}
-		// win++
-		var winRef = db.ref('players/'+winResult+'/score').child('win');
-		winRef.once('value', function(snap){
-			var increments = snap.val();
-			console.log(snap.val());
-			increments++;
-			winRef.set(increments);
-		});
-		
-		// lose++
-		var loseRef = db.ref('players/'+loserResult+'/score').child('lose');
-		loseRef.once('value', function(snap){
-			var increments = snap.val();
-			console.log(snap.val());			
-			increments++;
-			loseRef.set(increments);
-		});
+		// if is Tie do nothing
+		if(whoLoses !== 0 && whoWins !== 0){
+			// win++
+			var winRef = db.ref('players/'+whoWins+'/score').child('win');
+			winRef.once('value', function(snap){
+				var increments = snap.val();
+				console.log(snap.val());
+				increments++;
+				winRef.set(increments);
+			});
+			
+			// lose++
+			var loseRef = db.ref('players/'+whoLoses+'/score').child('lose');
+			loseRef.once('value', function(snap){
+				var increments = snap.val();
+				console.log(snap.val());			
+				increments++;
+				loseRef.set(increments);
+			});
+		}
+
 
 		// Display Winners name on the page
 		if(winnerID === 0){
 			winnerName = "Tie";
+			winnerTag = $('<h3> '+winnerName+' </h3>');
 		}else{
 			winnerName = playersArr[winnerID-1].name;
+			winnerTag = $('<h3>Player '+winnerName+' Wins!</h3>');
 		}
 
-		winnerTag = $('<h3>Player '+winnerName+' Wins!</h3>');
+		
 		$$.gameCards.css({'display':'none'});
 		$$.oppGameCards.css({'display':'none'});
 		$$.table.append(winnerTag);
@@ -233,13 +242,25 @@ db.ref('players').child('2').on('value', function(snap){
 
 /* Chat */
 
-db.ref('chat').on('value', function(snap){
-	var text = snap.val();
-	console.log(text);
-	var textDisplay = $('<p>'+text+'</p>');
+db.ref('chat').on('child_added', function(snap){
+	var key = snap.key;
 	
+	db.ref('chat').child(key).once('value', function(snap){
+		var chatObj = snap.val();
+	
+		if(snap.val()){
+		
+			var textDisplay = $('<p>'+chatObj.name+' : '+chatObj.text+'</p>');
 
-	$$.displayChat.append(textDisplay);
+			textDisplay[0].scrollTop = $$.displayChat[0].scrollHeight;
+
+			$$.displayChat.append(textDisplay);
+			$$.displayChat.animate({scrollTop: $$.displayChat[0].scrollHeight}, 'slow');
+		}		
+	});
+
+
+
 });
 
 
@@ -282,9 +303,14 @@ $(document).ready(function(){
 		e.preventDefault();
 
 		var chat = $$.inputChat.val();
-		db.ref('chat').push(chat);
-	});
+		
+		db.ref('chat').push({
+			name: playersArr[playerID-1].name,
+			text: chat 
+		});
+		$$.inputChat.val('');
 
+	});
 });
 
 //================================================
