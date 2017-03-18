@@ -1,28 +1,3 @@
-//Get DOM Elements
-const $$ = {
-	formStart : $('#form-start'),
-	textDialog : $('#text-dialog'),
-	btnStart : $('#btn-start'),
-	nameInput : $('#name-input'),
-	nameDisplay : $('#name-display'),
-	table : $('#table'),
-	//player
-	cardsContainer : $('#cards-container'),
-	gameCards : $('.game-card'),
-	win : $('#win'),
-	lose : $('#lose'),
-	//opponent
-	oppNameDisplay : $('#opp-name-display'),
-	oppContainer : $('#opp-cards-container'),
-	oppGameCards : $('.opp-game-card'),
-	oppWin : $('#opp-win'),
-	oppLose : $('#opp-lose'),
-	//chat
-	displayChat : $('#display-chat'),
-	inputChat : $('#input-chat'),
-	btnSend : $('#btn-send'),	
-}
-
 //Firebase Ref
 const db = firebase.database();
 
@@ -91,7 +66,6 @@ var playersArr = [];
 var turn = 1;
 var playerID;
 var winnerID;
-
 //Initialize players
 db.ref('.info/connected').on('value', function(snap){
 	
@@ -231,62 +205,17 @@ db.ref('players').child('2').on('value', function(snap){
 });
 //---------------------
 
-/* Chat */
-
-db.ref('chat').on('value', function(snap){
-	var text = snap.val();
-	console.log(text);
-	var textDisplay = $('<p>'+text+'</p>');
-	
-
-	$$.displayChat.append(textDisplay);
-});
 
 
-//=================== Click Events ===============
 
-$(document).ready(function(){	
-	
-	// Start Form
-	$$.btnStart.on('click', function(e){
-		e.preventDefault();
-		var playerName = $$.nameInput.val().trim();
-		
-		if(playerName !== ""){
-			game.player(playerName, playerID);
-			game.counter(turn);
 
-			$$.formStart.css({'display':'none'});
-		}	
-	});
 
-	// Cards on Click
-	// P1
-	$$.gameCards.on('click', function(){
-		var chose = $(this).attr("data-value").trim();
-		console.log(chose);
-		game.playerChose(chose, playerID);
-		game.counter(turn);
-	});
 
-	//P2
-	$$.oppGameCards.on('click', function(){
-		var chose = $(this).attr("data-value").trim();
-		
-		game.playerChose(chose, playerID);
-		game.counter(turn);
-	});
 
-	//Chat
-	$$.btnSend.on('click', function(e){
-		e.preventDefault();
 
-		var chat = $$.inputChat.val();
-		db.ref('chat').push(chat);
-	});
 
-});
 
-//================================================
+
+
 
 
