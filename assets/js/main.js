@@ -1,174 +1,276 @@
-function rpsls(p2, p1){
-	p1 = p1.toLowerCase();
-	p2 = p2.toLowerCase();
-	
-	console.log("p1: "+p1);
-	console.log("p2 : "+p2);	
-
-	console.log("======================");
-	if(p1 === p2){
-		console.log("tie");
-	}else if(p1 === "rock"){
-		if(p2 === "paper"){console.log("p2 win");}
-		if(p2 === "scissors"){console.log("p1 win");}
-		if(p2 === "lizard"){console.log("p1 win");}
-		if(p2 === "spock"){console.log("p2 win");}
-	}else if(p1 === "paper"){
-		if(p2 === "scissors"){console.log("p2 win");}
-		if(p2 === "rock"){console.log("p1 win");}
-		if(p2 === "lizard"){console.log("p2 win");}
-		if(p2 === "spock"){console.log("p1 win");}
-	}else if(p1 === "scissors"){
-		if(p2 === "paper"){console.log("p1 win");}
-		if(p2 === "rock"){console.log("p2 win");}
-		if(p2 === "lizard"){console.log("p1 win");}
-		if(p2 === "spock"){console.log("p2 win");}
-	}else if(p1 === "lizard"){
-		if(p2 === "paper"){console.log("p1 win");}
-		if(p2 === "rock"){console.log("p2 win");}
-		if(p2 === "scissors"){console.log("p2 win");}
-		if(p2 === "spock"){console.log("p1 win");}
-	}else if(p1 === "spock"){
-		if(p2 === "paper"){console.log("p2 win");}
-		if(p2 === "rock"){console.log("p1 win");}
-		if(p2 === "scissors"){console.log("p1 win");}
-		if(p2 === "lizard"){console.log("p2 win");}
-	}else{
-		console.log("input Invalid");
-	}
-}
-
-//Get Elements
+//Get DOM Elements
 const $$ = {
-	//Me
-	meNameInput : $('#me-name-input'),
-	meNameDisplay : $('.me-name-display'),
-	chose : $('.chose'),
-	meWin : $('#me-win'),
-	meLose : $('#me-lose'),
-	//Opponent
-	opponentNameDisplay : $('#opponent-name-display'),
-	opponentWin : $('#opponent-win'),
-	opponentLose : $('#opponent-lose'),
-	// DOM
+	formStart : $('#form-start'),
+	textDialog : $('#text-dialog'),
 	btnStart : $('#btn-start'),
+	nameInput : $('#name-input'),
+	nameDisplay : $('#name-display'),
+	table : $('#table'),
+	//player
+	cardsContainer : $('#cards-container'),
+	gameCards : $('.game-card'),
+	win : $('#win'),
+	lose : $('#lose'),
+	//opponent
+	oppNameDisplay : $('#opp-name-display'),
+	oppContainer : $('#opp-cards-container'),
+	oppGameCards : $('.opp-game-card'),
+	oppWin : $('#opp-win'),
+	oppLose : $('#opp-lose'),
+	//chat
+	textChat : $('#text-chat'),
+	btnSend : $('#btn-send'),	
 }
-//Create references
-const db = {
-	root : firebase.database(),
-	players : firebase.database().ref('/players'),
-	connected : firebase.database().ref('.info/connected'),
+//Firebase Ref
+const db = firebase.database();
+
+// Functions
+var game = {
+	db: firebase.database(),
+	player: function(name, key){
+		this.db.ref('players/'+key).child('name').set(name);
+		this.db.ref('players/'+key).child('active').set(true);
+	},
+	playerChose(myChose, key){
+		this.db.ref('players/'+key).child('chose').set(myChose);
+	},
+	counter: function(turn){
+		if(turn < 4){
+			turn++;
+			
+		}else{
+			turn = 0;
+		}
+		this.db.ref('turn').set(turn);
+	},
+	decideWiner: function(arr){
+		var p1 = arr[0].chose;
+		var p2 = arr[1].chose;
+
+		
+		if(p1 === p2){
+			result = 0;
+		}else if(p1 === 'rock'){
+			if(p2 === 'paper'){result = 2;} 
+			if(p2 === 'scissors'){result = 1;}
+			if(p2 === 'lizard'){result = 1;}
+			if(p2 === 'spock'){result = 2;}
+		
+		}else if(p1 === 'paper'){
+			if(p2 === 'scissors'){result = 2;}
+			if(p2 === 'rock'){result = 1;}
+			if(p2 === 'lizard'){result = 2;}
+			if(p2 === 'spock'){result = 1;}
+		
+		}else if(p1 === 'scissors'){
+			if(p2 === 'paper'){result = 1;}
+			if(p2 === 'rock'){result = 2;}
+			if(p2 === 'lizard'){result = 1;}
+			if(p2 === 'spock'){result = 2;}
+		
+		}else if(p1 === 'lizard'){
+			if(p2 === 'paper'){result = 1;}
+			if(p2 === 'rock'){result = 2;}
+			if(p2 === 'scissors'){result = 2;}
+			if(p2 === 'spock'){result = 1;}
+		
+		}else if(p1 === 'spock'){
+			if(p2 === 'paper'){result = 2;}
+			if(p2 === 'rock'){result = 1;}
+			if(p2 === 'scissors'){result = 1;}
+			if(p2 === 'lizard'){result = 2;}
+		
+		}
+		return result;
+	}
 }
 
-//============= Connecting =======================
-//Take the .push() key and store in local variables
-// all players key
-var opponentKey;
-// this player index who point to players array
-var meKey; 
-db.root.ref('.info/connected').on('value', function(snap) {
+var playersArr = [];
+var turn = 1;
+var playerID;
+var winnerID;
+//Initialize players
+db.ref('.info/connected').on('value', function(snap){
 	
-  if (snap.val()) {
-  	// Look for Player Key
-  	const status = db.root.ref('/players').push('on');
-  	db.root.ref('/players').once('value', function(snap){
-  		snap.forEach(function(childsnap){
-  			meKey = childsnap.key;
+	if(snap.val()){
+		const playersRef = db.ref('players');
+		
+		playersRef.once('value').then(function(playersSnap){ 
+			
+			if(playersSnap.hasChildren() && playersSnap.numChildren() < 2){
+				
+				if(playersSnap.hasChild('1')){
+					playerID = 2;
+				}
+				if(playersSnap.hasChild('2')){
+					playerID = 1;	
+				}
 
-  			// Look for Opponent Key
-  			db.players.on('value', function(snap){	
-  				var temp = Object.keys(snap.val());
-  				for(var i = 0; i<temp.length; i++){
-  					if(meKey === temp[i]){
+			}else if(playersSnap.numChildren() < 2){
+				playerID = 1;
+			}
 
-  					}else{
-  						opponentKey = temp[i];
-  					}
-  				}
-  			});
-  			//---------------------
-  		});
-  	});
-  	//-------------------
-  	status.onDisconnect().remove();
-  }
-});
-//============== Monitoring db/players  ==========
-
-db.players.on('value', function(snap){
-	
-	if(typeof(meKey) === 'string'){
-		// Me
-		db.players.child(meKey).on('value', function(snap){
-			var dbMe = snap.val();
-			console.log(snap.val());
-			//========== DOM =============
-
-			$$.meNameDisplay.text(dbMe.username);
-			$$.meWin.text(dbMe.score.win);
-			$$.meLose.text(dbMe.score.lose);
-			//----------------------------
+			const player = db.ref('players').child(playerID);
+			player.set({
+				active: false,
+				name:'Waiting for player '+playerID,
+				chose: 'none',
+				score: {
+					win: 0,
+					lose: 0
+				}
 		});
+			player.onDisconnect().remove();		
+		});	
+	}  
+});
+//--------------------
+
+/* Turn */
+//Save
+db.ref('turn').on('value', function(turnSnap){
+	turn = turnSnap.val();
+	
+	if(turn === 2){
+		if(playerID === 1){
+			$$.gameCards.css({'display':'inline'});	
+		}		
 	}
 
-	if(typeof(opponentKey) === 'string'){
-		// Opponent
-		db.players.child(opponentKey).on('value', function(snap){
-			var dbOpponent = snap.val();
+	if(turn === 3){
+		if(playerID === 2){
+			$$.oppGameCards.css({'display':'inline'});	
+			$$.gameCards.css({'display':'none'});	
+		}else{
+			$$.gameCards.css({'display':'none'});	
+		}
+	}
+
+	if(turn === 4){
+		var winner;
+		var winnerTag;
+		var winResult;
+		var loserResult;
+
+		winnerID = game.decideWiner(playersArr);
+		
+		//increments winner's  and loser's score
+		if(winnerID === 1){
+			winResult = 1;
+			loserResult = 2;
+		}else{
+			winResult = 2;
+			loserResult = 1;
+		}
+		// win++
+		var winRef = db.ref('players/'+winResult+'/score').child('win');
+		winRef.once('value', function(snap){
+			var increments = snap.val();
 			console.log(snap.val());
-			//========== DOM =============
-			$$.opponentNameDisplay.text(dbOpponent.username);
-			$$.opponentWin.text(dbOpponent.score.win);
-			$$.opponentLose.text(dbOpponent.score.lose);
-			//----------------------------
+			increments++;
+			winRef.set(increments);
 		});
+		
+		// lose++
+		var loseRef = db.ref('players/'+loserResult+'/score').child('lose');
+		loseRef.once('value', function(snap){
+			var increments = snap.val();
+			console.log(snap.val());			
+			increments++;
+			loseRef.set(increments);
+		});
+
+		// Display Winners name on the page
+		if(winnerID === 0){
+			winnerName = "Tie";
+		}else{
+			winnerName = playersArr[winnerID-1].name;
+		}
+
+		winnerTag = $('<h3>Player '+winnerName+' Wins!</h3>');
+		$$.gameCards.css({'display':'none'});
+		$$.oppGameCards.css({'display':'none'});
+		$$.table.append(winnerTag);
 	}
 });
 
+//Remove
+db.ref('players').on('child_removed', function(snap){
+	db.ref('turn').remove();
+});
+//--------------------
 
 
-//=================================================
 
-$(document).ready(function(){
-
+/* Connect with DataBase */
+//P1
+db.ref('players').child('1').on('value', function(snap){
+	var obj = snap.val();
 	
-	// Click Events	=================
+	if(snap.val()){
+		$$.nameDisplay.text(obj.name);
+		$$.win.text(obj.score.win);
+		$$.lose.text(obj.score.lose);		
+	}
+	playersArr[0] = obj;
+});
+
+//P2
+db.ref('players').child('2').on('value', function(snap){
+	var obj = snap.val();
+
+	if(snap.val()){
+		$$.oppNameDisplay.text(obj.name);
+		$$.oppWin.text(obj.score.win);
+		$$.oppLose.text(obj.score.lose);
+	}
+	playersArr[1] = obj;
+});
+//---------------------
+
+
+
+//=================== Click Events ===============
+
+$(document).ready(function(){	
+	
 	// Start Form
 	$$.btnStart.on("click", function(e){
 		e.preventDefault();
-		var playerName = $$.meNameInput.val().trim();
-		write.player(playerName, meKey);
-		console.log(playerName);
+		var playerName = $$.nameInput.val().trim();
+		
+		if(playerName !== ""){
+			game.player(playerName, playerID);
+			game.counter(turn);
+
+			$$.formStart.css({'display':'none'});
+		}
+		
 	});
 
-	// Player Panel click event
-	$$.chose.on("click", function(){
+	// Cards on Click
+
+	// P1
+	$$.gameCards.on("click", function(){
 		var chose = $(this).attr("data-value").trim();
-		write.playerChose(chose, meKey);			
+		console.log(chose);
+		game.playerChose(chose, playerID);
+		game.counter(turn);
+	});
+
+	//P2
+	$$.oppGameCards.on("click", function(){
+		var chose = $(this).attr("data-value").trim();
+		
+		console.log(chose);
+		game.playerChose(chose, playerID);
+		game.counter(turn);
 	});
 
 });
 
 
-var write = {
-	player: function(name,key){
-		const dbRef = firebase.database().ref('/players').child(key);
-		dbRef.set({
-		  username: name,
-		  chose :'',
-		  score :{
-		  	win : 0,
-		  	lose : 0
-		  }
-		});
-	},
-	playerChose(myChose, key){
-		console.log(key);
-		const dbRef = firebase.database().ref('/players/'+key+'/').child('chose');
-		dbRef.set(myChose);
-	},
 
-}
 
 
 

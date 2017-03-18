@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,155 +7,155 @@
     <link rel="stylesheet" href="./assets/css/bootstrap.css">
     <link rel="stylesheet" href="./assets/css/main.css">
   </head>
-
   <body>
     <div class="container">
-      <!--=== Game Panel ===-->
-      <div id="game" class="panel panel-default text-center">
-        <div class="panel-body">
-          <!--=== row 1 ====-->
-          <div class="row">
-            <div class="col-sm-12 center">
-              <div class="panel panel-default">
-                <div class="panel-body">
-                  <h1>R P S L S - Game</h1>
+      <div class="row">
+        <div id="game" class="col-sm-12">
+          <div class="panel panel-default">
+            <div id="game" class="panel-body">
+
+              <!-- Title -->
+              <div class="row">
+                <div class="col-sm-12 text-center">
+                  <div class="panel panel-default">
+                    <div class="panel-body">
+                      <h1>R P S L S - Game</h1>
+                    </div>
+                  </div>
                 </div>
               </div>
+
+                <!-- Dialog -->
+                <div class="row">
+                  <div class="col-sm-12 text-center">
+                    <div class="panel panel-default">
+                      <div class="panel-body">
+                        <div class="col-sm-12">
+                          <div id="text-dialog">
+                            
+                          </div>
+                          <div id="form-start">
+                            <form class="form-inline">
+                                <input id="name-input" type="text" class="form-control input-sm text-center" placeholder="Player Name">
+                                <button id="btn-start" type="submit" class="btn btn-success btn-sm">Start</button>
+                            </form> 
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Table -->
+                <div class="row">
+                  <div class="col-sm-12 text-center">
+                    <div class="panel panel-default">
+                      <div class="panel-body">
+
+                        <div class="col-sm-4">
+                          <div class="panel panel-default">
+                            <div class="panel-body">
+                              <h4 id="name-display">Waiting Player!</h4>
+                              <div id="cards-container">
+                                
+                                <a href="#"> <img class="game-card nounderline" data-value="rock" src="./assets/images/rock.png"> </a>
+                                <a href="#"> <img class="game-card nounderline" data-value="paper" src="./assets/images/paper.png"> </a>
+                                <a href="#"> <img class="game-card nounderline" data-value="scissors" src="./assets/images/scissors.png"> </a>
+                                <a href="#"> <img class="game-card nounderline" data-value="lizard" src="./assets/images/lizard.png"> </a>
+                                <a href="#"> <img class="game-card nounderline" data-value="spock" src="./assets/images/spock.png"> </a>
+
+                              </div>
+                              <p>Win: <span id="win"></span> | Lose: <span id="lose"></span></p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                          <div class="col-sm-12">
+                            <div class="panel panel-default">
+                              <div class="panel-body">
+                                
+                                <div id="table" class="text-center">
+                                  
+                                </div>
+
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                          <div class="panel panel-default">
+                            <div class="panel-body">
+                              <h4 id="opp-name-display">Waiting Player!</h4>
+                              <div id="opp-cards-container">
+                                
+                                <a href="#"> <img class="opp-game-card nounderline" data-value="rock" src="./assets/images/rock.png"> </a>
+                                <a href="#"> <img class="opp-game-card nounderline" data-value="paper" src="./assets/images/paper.png"> </a>
+                                <a href="#"> <img class="opp-game-card nounderline" data-value="scissors" src="./assets/images/scissors.png"> </a>
+                                <a href="#"> <img class="opp-game-card nounderline" data-value="lizard" src="./assets/images/lizard.png"> </a>
+                                <a href="#"> <img class="opp-game-card nounderline" data-value="spock" src="./assets/images/spock.png"> </a>
+
+                              </div>
+                              <p>Win: <span id="opp-win"></span> | Lose: <span id="opp-lose"></span></p>
+                            </div>
+                          </div>
+                        </div>
+
+
+                      </div>
+                    </div>
+                  </div>
+
+              
+                  <!--=== row 3 ====-->
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="col-sm-8">
+                        <div class="row">
+                          <div class="col-sm-12">
+                            <div class="panel panel-default">
+                              <div class="panel-body">
+                                <textarea id="text-chat" class="form-control" rows="10"></textarea>
+                                <input type="text" id="" class="form-control" placeholder="Text input">
+                                <button id="btn-send" type="submit" class="btn btn-success btn-sm pull-right">Send</button>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>         
+                      </div>
+                      <div class="col-sm-4">
+                        <div class="panel-game panel panel-default">
+                          <div class="panel-body">
+                            <img class="img-responsive rule-img" src="./assets/images/rules.png"> 
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
             </div>
           </div>
-
-
-          <!--=== row 2 ====-->
-          <div class="row">
-            <div class="col-sm-8">
-              <div class="row">
-                <!--=== Player ===-->
-                <div class="player-box col-sm-6">
-                  <div class="panel panel-default">
-                    <div class="panel-body">
-                    <div class="row">
-                      <a href="#"> <img class="chose game-item nounderline" data-value="rock" src="./assets/images/rock.png"> </a>
-                      <a href="#"> <img class="chose game-item nounderline" data-value="paper" src="./assets/images/paper.png"> </a>
-                      <a href="#"> <img class="chose game-item nounderline" data-value="scissors" src="./assets/images/scissors.png"> </a>
-                      <a href="#"> <img class="chose game-item nounderline" data-value="lizard" src="./assets/images/lizard.png"> </a>
-                      <a href="#"> <img class="chose game-item nounderline" data-value="spock" src="./assets/images/spock.png"> </a>
-                    </div>
-                    <div class="row">
-                      <h3 class="me-name-display">Player</h3>
-                    </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6">
-                  <div class="panel panel-default">
-                    <div class="panel-body">
-                      <div class="row fight-box">
-                        <!-- P1 container -->
-                        <div class="col-xs-4">
-                         <h2 id="p1-current-chose"></h2>
-                        </div>
-                        <!-- VS container -->
-                        <div id="vs-box" class="col-xs-4">
-                          <img class="game-item" src="./assets/images/vs.png">
-                        </div>
-                        <!-- P2 container -->
-                        <div class="col-xs-4">
-                           <h2 id="p2-current-chose"></h2>    
-                        </div>
-                      </div>
-                      <!-- Dialog Box -->
-                      <hr>
-                      <div id="dialog-box" class="row">
-                        <div class="col-xs-12">
-                          <form class="form-inline">
-                              <input id="me-name-input" type="text" class="form-control input-sm text-center" placeholder="Player Name">
-                              <button id="btn-start" type="submit" class="btn btn-success btn-sm pull-right">Start</button>
-                          </form>
-                        </div>
-                      </div>
-                                        
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!--=== Dialog Box ===-->
-              <div class="row">
-                <div class="col-sm-12">
-                  <div class="panel panel-default">
-                    <div class="panel-body">
-                      dialog box
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!--=== Scores ===-->
-            <div class="col-sm-4">
-              <div class="row">
-                <div class="col-xs-12 player-box">
-                  <div class="panel panel-default">
-                    <div class="panel-body">
-                      <div class="me-score row">
-                        <div class="row">
-                          <h3 class="me-name-display">Me</h3>
-                        </div>
-                        <div class="row">
-                          <p>Win: <span id="me-win"></span></p>
-                        </div>
-                        <div class="row">
-                          <p>Lose: <span id="me-lose"></span></p>
-                        </div>
-                      </div>
-                      <div class="opponent-score row">
-                        <div class="row">
-                          <h3 id="opponent-name-display">Opponent</h3>
-                        </div>
-                        <div class="row">
-                          <p>Win: <span id="opponent-win"></span></p>
-                        </div>
-                        <div class="row">
-                          <p>Lose: <span id="opponent-lose"></span></p>
-                        </div>
-                      </div> 
-                    </div>
-                  </div>
-                </div> 
-              </div>
-            </div>
-          </div>
-
-
-          <!--=== row 3 ====-->
-          <div class="row">
-            <div class="col-sm-8">
-              <div class="row">
-                <div class="col-sm-12">
-                  <div class="panel panel-default">
-                    <div class="panel-body">
-                      <textarea class="form-control" rows="10"></textarea>
-                      <input type="text" class="form-control" placeholder="Text input">
-                      <button type="submit" class="btn btn-success btn-sm pull-right">Submit</button>
-                    </div>
-                  </div>
-                </div>
-
-              </div>         
-            </div>
-            <div class="col-sm-4">
-              <div class="panel-game panel panel-default">
-                <div class="panel-body">
-                  <img class="img-responsive rule-img" src="./assets/images/rules.png">
-                
-                </div>
-              </div>
-            </div>
-          </div>    
         </div>
       </div>
-      <!--=== End Game Panel ===--> 
+
+
+
+
+
+
+
+
     </div>
-    <!-- En
+
+
+
+
+
+
+
+
 
 
     <!-- Jquery -->
@@ -165,9 +164,9 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <!-- Fire Base -->
     <script src="https://www.gstatic.com/firebasejs/3.7.1/firebase.js"></script>
-    <script src="./assets/js/fbkey.js"></script>
+    <script type="text/javascript" src="./assets/js/fbkey.js"></script>
+    
     <!-- Local JavaScript -->
     <script type="text/javascript" src="./assets/js/main.js"></script>
   </body>
-
 </html>
