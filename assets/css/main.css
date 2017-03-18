@@ -13,6 +13,11 @@
 	margin: auto;
 	display: none;
 }
+.game-card-off{
+	height: 64px;
+	width: 64px;
+	margin: auto;
+}
 
 /*----------------------------------*/
 

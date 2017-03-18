@@ -13,7 +13,7 @@ const $$ = {
 	lose : $('#lose'),
 	//opponent
 	oppNameDisplay : $('#opp-name-display'),
-	oppContainer : $('#opp-cards-container'),
+	oppCardsContainer : $('#opp-cards-container'),
 	oppGameCards : $('.opp-game-card'),
 	oppWin : $('#opp-win'),
 	oppLose : $('#opp-lose'),
@@ -129,8 +129,62 @@ db.ref('.info/connected').on('value', function(snap){
 });
 //--------------------
 
-/* Turn */
-//Save
+/* Connect with DataBase */
+//P1
+db.ref('players').child('1').on('value', function(snap){
+	var obj = snap.val();
+	
+	if(snap.val()){
+		$$.nameDisplay.text(obj.name);
+		$$.win.text(obj.score.win);
+		$$.lose.text(obj.score.lose);		
+	}
+	playersArr[0] = obj;
+});
+
+//P2
+db.ref('players').child('2').on('value', function(snap){
+	var obj = snap.val();
+
+	if(snap.val()){
+		$$.oppNameDisplay.text(obj.name);
+		$$.oppWin.text(obj.score.win);
+		$$.oppLose.text(obj.score.lose);
+	}
+	playersArr[1] = obj;
+});
+//---------------------
+
+/* Chat */
+
+db.ref('chat').on('child_added', function(snap){
+	var key = snap.key;
+	
+	db.ref('chat').child(key).once('value', function(snap){
+		var chatObj = snap.val();
+	
+		if(snap.val()){
+		
+			var textDisplay = $('<p>'+chatObj.name+' : '+chatObj.text+'</p>');
+
+			textDisplay[0].scrollTop = $$.displayChat[0].scrollHeight;
+
+			$$.displayChat.append(textDisplay);
+			$$.displayChat.animate({scrollTop: $$.displayChat[0].scrollHeight}, 'slow');
+		}		
+	});
+});
+
+//========= Removing Turn and display player disconnect
+db.ref('players').once('child_removed', function(snap){
+	db.ref('turn').remove();
+	db.ref('chat').remove();
+});
+//--------------------------------------------------------------
+
+
+/* Game logic happens herer based on the steps */
+
 db.ref('turn').on('value', function(turnSnap){
 	turn = turnSnap.val();
 	
@@ -149,6 +203,7 @@ db.ref('turn').on('value', function(turnSnap){
 		}
 	}
 
+	// Winner decision logic
 	if(turn === 4){
 		var winner;
 		var winnerTag;
@@ -205,64 +260,7 @@ db.ref('turn').on('value', function(turnSnap){
 		$$.table.append(winnerTag);
 	}
 });
-
-//Remove
-db.ref('players').on('child_removed', function(snap){
-	db.ref('turn').remove();
-});
-//--------------------
-
-
-
-/* Connect with DataBase */
-//P1
-db.ref('players').child('1').on('value', function(snap){
-	var obj = snap.val();
-	
-	if(snap.val()){
-		$$.nameDisplay.text(obj.name);
-		$$.win.text(obj.score.win);
-		$$.lose.text(obj.score.lose);		
-	}
-	playersArr[0] = obj;
-});
-
-//P2
-db.ref('players').child('2').on('value', function(snap){
-	var obj = snap.val();
-
-	if(snap.val()){
-		$$.oppNameDisplay.text(obj.name);
-		$$.oppWin.text(obj.score.win);
-		$$.oppLose.text(obj.score.lose);
-	}
-	playersArr[1] = obj;
-});
-//---------------------
-
-/* Chat */
-
-db.ref('chat').on('child_added', function(snap){
-	var key = snap.key;
-	
-	db.ref('chat').child(key).once('value', function(snap){
-		var chatObj = snap.val();
-	
-		if(snap.val()){
-		
-			var textDisplay = $('<p>'+chatObj.name+' : '+chatObj.text+'</p>');
-
-			textDisplay[0].scrollTop = $$.displayChat[0].scrollHeight;
-
-			$$.displayChat.append(textDisplay);
-			$$.displayChat.animate({scrollTop: $$.displayChat[0].scrollHeight}, 'slow');
-		}		
-	});
-
-
-
-});
-
+//----------------------------------------------
 
 //=================== Click Events ===============
 
@@ -285,9 +283,12 @@ $(document).ready(function(){
 	// P1
 	$$.gameCards.on('click', function(){
 		var chose = $(this).attr("data-value").trim();
-		console.log(chose);
+		
 		game.playerChose(chose, playerID);
 		game.counter(turn);
+			
+		$$.cardsContainer.append('<img class="game-card-off nounderline" data-value="paper" src="./assets/images/'+chose+'.png">');	
+
 	});
 
 	//P2
@@ -296,6 +297,9 @@ $(document).ready(function(){
 		
 		game.playerChose(chose, playerID);
 		game.counter(turn);
+
+		$$.oppCardsContainer.append('<img class="game-card-off nounderline" data-value="paper" src="./assets/images/'+chose+'.png">');
+
 	});
 
 	//Chat
