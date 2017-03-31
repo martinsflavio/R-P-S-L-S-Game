@@ -4,31 +4,61 @@ var fb = new FirebaseInt();
 
 
 ////////////////// Assigning player /////////////////////
-fb.gameRoomRef.once('value').then( function (roomSnap) {
+fb.gameRoomRef.once('value').then( function (gameRoomSnap) {
 
-	if(roomSnap.val()){
-
+	if(gameRoomSnap.val()){
+		//-------------------------------------------------------------
 		var opponentFound = false;
-
 		// loop tru the tables looking for opponent
-		roomSnap.forEach(function (thisTableSnap) {
-
+		gameRoomSnap.forEach(function (thisTableSnap) {
 			if(thisTableSnap.numChildren() < 2){
-				fb.discDetection(fb.playerAdd(thisTableSnap.key));
-				opponentFound = true;
-			}
-
+				fb.discDetection(fb.playerAdd(fb.tableAdd(true,thisTableSnap.key)));   //
+				opponentFound = true;                                                  // Find a way to pass this logic to a prototype function
+			}                                                                        //
 		});
-
 		// if there's no opponent then create a new table
 		if(!opponentFound){
-			fb.discDetection(fb.playerAdd(fb.tableAdd()));
+			fb.discDetection(fb.playerAdd(fb.tableAdd(false)));
 		}
+		//-------------------------------------------------------------
 	}else {
-		fb.discDetection(fb.playerAdd(fb.tableAdd()));
+		fb.discDetection(fb.playerAdd(fb.tableAdd(false)));
 	}
 
 });
+
+///////////////////////// End ///////////////////////////
+
+
+firebase.database().ref('Game-Room').on('value', function (gameRoomSnap) {
+	console.log(gameRoomSnap.val());
+
+	if(gameRoomSnap.val()){
+		if(typeof fb.playerRef !== undefined){
+			console.log('ok');
+			console.log(fb.playerRef);
+		}
+	}
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -38,9 +68,9 @@ function FirebaseInt() {
 	this.gameRoomRef = firebase.database().ref('Game-Room');
 
 	this.tableKey;
+	this.tableRef;
 	this.playerKey;
 	this.playerRef;
-	// Opponent //
 	this.opponentKey;
 
 }
@@ -48,9 +78,18 @@ function FirebaseInt() {
 
 
 /////////////////// Prototypes /////////////////////////
-FirebaseInt.prototype.tableAdd = function () {
-	this.tableKey = this.gameRoomRef.push('table').key;
-	return this.tableKey;
+
+FirebaseInt.prototype.tableAdd = function (exists, tableKey) {
+	if(exists){
+		this.tableKey = tableKey;
+		this.tableRef = this.db.ref('Game-Room/'+tableKey);
+		return tableKey;
+	}else {
+		this.tableKey = this.gameRoomRef.push('table').key;
+		this.tableRef = this.db.ref('Game-Room/'+this.tableKey);
+		return this.tableKey;
+	}
+
 };
 
 //--------------------------------------
@@ -70,12 +109,30 @@ FirebaseInt.prototype.discDetection = function (playerRef) {
 };
 
 //--------------------------------------
-
-FirebaseInt.prototype.playerAssign = function (rSnap) {
-	console.log(tSnap);
-}
+// not saving opponent key o local variable
+/*FirebaseInt.prototype.opponentDetect = function (tKey, pKey) {
+	this.gameRoomRef.child(tKey).once('value').then(function (tableSnap) {
+		tableSnap.forEach(function (playerSnap) {
+			if(playerSnap.key !== pKey){
+				console.log(playerSnap.key);
+				this.opponentKey = playerSnap.key;
+			}
+		})
+	});
+};*/
 
 //--------------------------------------
 
+FirebaseInt.prototype.playerInit = function(name){
+	this.playerRef.set({
+		name: name,
+		chose: '',
+		score:{
+			win: 0,
+			lose: 0
+		}
+	});
+};
 
-///////////////////////// End ///////////////////////////
+
+
