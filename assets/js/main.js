@@ -8,6 +8,7 @@ $(document).ready(function () {
 
 		if (playerName !== ''){
 			fb.playerInit(playerName);
+			fb.listenToTable(fb.tableRef);
 
 			// store opponent's key locally
 			fb.tableRef.once('value', function (tablesSnap) {
@@ -25,4 +26,3 @@ $(document).ready(function () {
 	});
 });
 
-//(TODO DEVELOPER): create a listening event using tableKey, check Firebase Cloud Messaging.
