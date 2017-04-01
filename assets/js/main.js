@@ -8,6 +8,7 @@ $(document).ready(function () {
 
 		if (playerName !== ''){
 			fb.playerInit(playerName);
+
 			// store opponent's key locally
 			fb.tableRef.once('value', function (tablesSnap) {
 				tablesSnap.forEach(function (thisTableSnap) {
@@ -16,11 +17,12 @@ $(document).ready(function () {
 						fb.opponentRef = fb.tableRef.child(thisTableSnap.key);
 					}
 				});
+			}).catch(function(err) {
+				console.log('Unable to access Game-Table!', err);
 			});
 
 		}
 	});
 });
 
-
-
+//(TODO DEVELOPER): create a listening event using tableKey, check Firebase Cloud Messaging.

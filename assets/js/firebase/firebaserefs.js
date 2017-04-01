@@ -24,6 +24,8 @@ fb.gameRoomRef.once('value').then( function (gameRoomSnap) {
 		fb.playerAdd(fb.tableAdd(false));
 	}
 
+}).catch(function(err) {
+	console.log('Unable to access Game-Room!', err);
 });
 
 ///////////////////////// End ///////////////////////////
@@ -42,7 +44,6 @@ function FirebaseInt() {
 	this.playerRef;
 	this.opponentRef = '';
 	this.opponentKey = 'Waiting';
-
 }
 
 
@@ -58,7 +59,6 @@ FirebaseInt.prototype.tableAdd = function (exists, tableKey) {
 		this.tableRef = this.db.ref('Game-Room/'+this.tableKey);
 		return this.tableKey;
 	}
-
 };
 
 //--------------------------------------
@@ -74,7 +74,6 @@ FirebaseInt.prototype.playerAdd = function (tableKey) {
 //--------------------------------------
 
 FirebaseInt.prototype.playerInit = function(name){
-
 	// Initialize player
 	this.playerRef.set({
 		name: name,
@@ -84,6 +83,5 @@ FirebaseInt.prototype.playerInit = function(name){
 			lose: 0
 		}
 	});
-
 };
 
