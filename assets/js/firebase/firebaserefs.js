@@ -1,79 +1,83 @@
-///////////////// Instantiating FB Obj //////////////////
-
-var fb = new FirebaseInt();
-
+var game = {
+	fbGameRoomRef: firebase.database().ref('Game-Room'),
+	player: '',
+	opponent: ''
+}
 ////////////////// Assigning player /////////////////////
-fb.gameRoomRef.once('value').then( function (gameRoomSnap) {
+
+
+game.fbGameRoomRef.once('value').then( function (gameRoomSnap) {
 
 	if(gameRoomSnap.val()){
-		//-------------------------------------------------------------
-		var opponentFound = false;
-		// loop tru the tables looking for opponent
+
+		var opponentCheck = true;
+		var tablesCount = 0;
+
 		gameRoomSnap.forEach(function (thisTableSnap) {
+			tablesCount++;
+			// If open table is true then create a player inside this table
 			if(thisTableSnap.numChildren() <= 1){
-				fb.playerAdd(fb.tableAdd(true,thisTableSnap.key));                     //
-				opponentFound = true;                                                  // Find a way to pass this logic to a prototype function
-			}                                                                        //
+
+				opponentCheck = false;
+
+				game.tableRef = game.fbGameRoomRef.child(thisTableSnap.key);
+				game.playerKey = game.tableRef.push('player').key;
+				game.playerRef = game.tableRef.child(game.playerKey);
+
+				game.tableRef.child(game.playerKey).on('value', function (pSnap) {
+					if (pSnap.val()){
+						game.player = pSnap.val();
+					}
+				});
+
+				game.playerRef.onDisconnect().remove();
+			}
+
+
+			// If no open table then create a new table with player
+			if (opponentCheck && tablesCount === gameRoomSnap.numChildren()){
+				game.tableKey = game.fbGameRoomRef.push('table').key;
+				game.tableRef = game.fbGameRoomRef.child(game.tableKey);
+				game.playerKey = game.tableRef.push('player').key;
+				game.playerRef = game.tableRef.child(game.playerKey);
+
+				game.tableRef.child(game.playerKey).on('value', function (pSnap) {
+					if (pSnap.val()){
+						game.player = pSnap.val();
+					}
+				});
+				game.playerRef.onDisconnect().remove();
+			}
 		});
-		// if there's no opponent then create a new table
-		if(!opponentFound){
-			fb.playerAdd(fb.tableAdd(false));
-		}
-		//-------------------------------------------------------------
+
 	}else {
-		fb.playerAdd(fb.tableAdd(false));
+		game.tableKey = game.fbGameRoomRef.push('table').key;
+		game.tableRef = game.fbGameRoomRef.child(game.tableKey);
+		game.playerKey = game.tableRef.push('player').key;
+		game.playerRef = game.tableRef.child(game.playerKey);
+
+		game.tableRef.child(game.playerKey).on('value', function (pSnap) {
+			if (pSnap.val()){
+				game.player = pSnap.val();
+			}
+		});
+		game.playerRef.onDisconnect().remove();
 	}
+
 
 }).catch(function(err) {
 	console.log('Unable to access Game-Room!', err);
 });
 
-///////////////////////// End ///////////////////////////
 
 
 
 
-////////////////// FB Obj Constructor ///////////////////
-function FirebaseInt() {
-	this.db = firebase.database();
-	this.gameRoomRef = firebase.database().ref('Game-Room');
-
-	this.tableKey;
-	this.tableRef;
-	this.playerKey;
-	this.playerRef;
-	this.opponentRef = '';
-	this.opponentKey = 'Waiting';
-}
 
 
-/////////////////// Prototypes /////////////////////////
 
-FirebaseInt.prototype.tableAdd = function (exists, tableKey) {
-	if(exists){
-		this.tableKey = tableKey;
-		this.tableRef = this.db.ref('Game-Room/'+tableKey);
-		return tableKey;
-	}else {
-		this.tableKey = this.gameRoomRef.push('table').key;
-		this.tableRef = this.db.ref('Game-Room/'+this.tableKey);
-		return this.tableKey;
-	}
-};
 
-//--------------------------------------
-
-FirebaseInt.prototype.playerAdd = function (tableKey) {
-	// Store playerKey
-	this.playerKey = this.gameRoomRef.child(tableKey).push('player').key;
-	// Return playerRef
-	this.playerRef = this.db.ref('Game-Room/'+tableKey+'/'+this.playerKey);
-	this.playerRef.onDisconnect().remove();
-};
-
-//--------------------------------------
-
-FirebaseInt.prototype.playerInit = function(name){
+function playerInit (name){
 	// Initialize player
 	this.playerRef.set({
 		name: name,
@@ -83,5 +87,5 @@ FirebaseInt.prototype.playerInit = function(name){
 			lose: 0
 		}
 	});
-};
+}
 
