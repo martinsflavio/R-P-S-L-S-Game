@@ -1,40 +1,6 @@
-///////////////// Instantiating FB Obj //////////////////
-
-var fb = new FirebaseInt();
-
-////////////////// Assigning player /////////////////////
-fb.gameRoomRef.once('value').then( function (gameRoomSnap) {
-
-	if(gameRoomSnap.val()){
-		//-------------------------------------------------------------
-		var opponentFound = false;
-		// loop tru the tables looking for opponent
-		gameRoomSnap.forEach(function (thisTableSnap) {
-			if(thisTableSnap.numChildren() <= 1){
-				fb.playerAdd(fb.tableAdd(true,thisTableSnap.key));                     //
-				opponentFound = true;                                                  // Find a way to pass this logic to a prototype function
-			}                                                                        //
-		});
-		// if there's no opponent then create a new table
-		if(!opponentFound){
-			fb.playerAdd(fb.tableAdd(false));
-		}
-		//-------------------------------------------------------------
-	}else {
-		fb.playerAdd(fb.tableAdd(false));
-	}
-
-}).catch(function(err) {
-	console.log('Unable to access Game-Room!', err);
-});
-
-///////////////////////// End ///////////////////////////
-
-
-
-
 ////////////////// FB Obj Constructor ///////////////////
-function FirebaseInt() {
+function FirebaseInt(jqueryObj) {
+	this.jq = jqueryObj;
 	this.db = firebase.database();
 	this.gameRoomRef = firebase.database().ref('Game-Room');
 
@@ -42,15 +8,16 @@ function FirebaseInt() {
 	this.tableRef;
 	this.playerKey;
 	this.playerRef;
-	this.opponentRef = '';
-	this.opponentKey = 'Waiting';
+	this.tableObj;
+	this.opponentKey;
+	this.opponentRef;
+	this.playerAssign();
 }
-
 
 /////////////////// Prototypes /////////////////////////
 
-FirebaseInt.prototype.tableAdd = function (exists, tableKey) {
-	if(exists){
+FirebaseInt.prototype.tableAdd = function (tableKey) {
+	if(tableKey){
 		this.tableKey = tableKey;
 		this.tableRef = this.db.ref('Game-Room/'+tableKey);
 		return tableKey;
@@ -64,16 +31,15 @@ FirebaseInt.prototype.tableAdd = function (exists, tableKey) {
 //--------------------------------------
 
 FirebaseInt.prototype.playerAdd = function (tableKey) {
-	// Store playerKey
+	// Store playerKey and create playerRef
 	this.playerKey = this.gameRoomRef.child(tableKey).push('player').key;
-	// Return playerRef
 	this.playerRef = this.db.ref('Game-Room/'+tableKey+'/'+this.playerKey);
 	this.playerRef.onDisconnect().remove();
 };
 
 //--------------------------------------
 
-FirebaseInt.prototype.playerInit = function(name){
+FirebaseInt.prototype.playerStart = function(name){
 	// Initialize player
 	this.playerRef.set({
 		name: name,
@@ -87,11 +53,86 @@ FirebaseInt.prototype.playerInit = function(name){
 
 //--------------------------------------
 
-FirebaseInt.prototype.listenToTable = function (tRef) {
-	tRef.on('value', function (snap) {
-		console.log(snap.val());
-	});
+FirebaseInt.prototype.pageUptade = function (tRef) {
+
+	tRef.on('value', function (tableSnap) {
+		if (tableSnap.val()){
+			this.tableObj = tableSnap.val();          // (TODO) remove later
+			this.getOppentKey(tableSnap, this.playerKey);
+
+			this.displayData(this.playerRef, this.opponentRef, this.jq);
+
+		}
+	}.bind(this));
 };
 
 //--------------------------------------
 
+FirebaseInt.prototype.playerAssign = function () {
+
+	this.gameRoomRef.once('value', function(roomSnap) {
+		var openTableCheck = true;
+
+		if (roomSnap.val()){
+
+			// look for open table to add a player
+			roomSnap.forEach(function (thisTableSnap) {
+				if(thisTableSnap.numChildren() <= 1){
+					this.playerAdd(this.tableAdd(thisTableSnap.key));
+					openTableCheck = false;
+					return;
+				}
+			}.bind(this));
+
+			// if there's no open tables create one with player
+			if (openTableCheck){
+				this.playerAdd(this.tableAdd(false));
+			}
+
+		}else{
+
+			this.playerAdd(this.tableAdd(false));
+
+		}
+
+	}.bind(this));
+
+};
+
+//--------------------------------------
+
+FirebaseInt.prototype.getOppentKey = function (tSnap, pKey) {
+
+	tSnap.forEach(function (thisTableSnap) {
+		if (thisTableSnap.key !== pKey){
+			this.opponentKey = thisTableSnap.key;
+			this.opponentRef = this.tableRef.child(this.opponentKey);
+		}
+	}.bind(this));
+}
+
+//--------------------------------------
+
+FirebaseInt.prototype.displayData = function (pRef, oRef, $) {
+
+	//Player Listener Event
+	pRef.on('value', function (pSnap) {
+		var pObj = pSnap.val();
+		if (pObj){
+			$.nameDisplay.text(pObj.name);
+			$.lose.text(pObj.score.lose);
+			$.win.text(pObj.score.win);
+		}
+	}.bind(this));
+
+	//Opponent Listener Event
+	oRef.on('value', function (oSnap) {
+		var oObj = oSnap.val();
+		if (oObj){
+			$.oppNameDisplay.text(oObj.name);
+			$.oppLose.text(oObj.score.lose);
+			$.oppWin.text(oObj.score.win);
+		}
+	}.bind(this));
+
+};
