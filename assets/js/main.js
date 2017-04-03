@@ -1,3 +1,25 @@
+// While it may not seem imperative for smaller programs, you should 
+// get in the habit of wrapping your js code in either a 
+
+// $(document).ready(function(){
+//  // code goes here
+// })
+
+// or an IIFE (immediately invoked function expression)
+// ;(function(){
+//  // code goes here
+// })()
+
+// You are already wrapping your click handler code in a $(document).ready block so I'd suggest moving
+// the rest of your logic into there as well. Otherwise you're giving users near direct access to your
+// database through the console.
+
+// Flavio, I commend you for taking on this extra challenging assignment! You certainly made admirable headway 
+// and I think this is right on the cusp of being a fully functional game. I would suggest that in the future
+// you put your focus on getting the logic sorted out before you spend time on styling. It's much more impressive
+// to have an aesthetically awful and functionally solid app than an aesthetically appealing and functionally broken & brittle one.
+
+// I dig this approach to storing DOM elements 👌
 //Get DOM Elements
 const $$ = {
 	formStart : $('#form-start'),
@@ -28,6 +50,7 @@ const db = firebase.database();
 
 // Functions
 var game = {
+	// I would only initialize your main firebase db ref once
 	db: firebase.database(),
 	player: function(name, key){
 		this.db.ref('players/'+key).child('name').set(name);
@@ -93,6 +116,10 @@ var playerID;
 var winnerID;
 
 //Initialize players
+// Instead of initializing players the moment they connect - it might serve you well to only initialize them
+// when they actually submit a username. By doing it that way, you can avoid having to set players until they're
+// actually ready to play which helps simplify the necessary logic. Otherwise things begin to go very haywire 
+// when things out of your control begin to happen (ie more than two users visit your site before anybody has signed in).
 db.ref('.info/connected').on('value', function(snap){
 	
 	if(snap.val()){
@@ -133,7 +160,7 @@ db.ref('.info/connected').on('value', function(snap){
 //P1
 db.ref('players').child('1').on('value', function(snap){
 	var obj = snap.val();
-	
+
 	if(snap.val()){
 		$$.nameDisplay.text(obj.name);
 		$$.win.text(obj.score.win);
@@ -258,6 +285,8 @@ db.ref('turn').on('value', function(turnSnap){
 		$$.gameCards.css({'display':'none'});
 		$$.oppGameCards.css({'display':'none'});
 		$$.table.append(winnerTag);
+
+		// would be nice to have some reset logic so users can play more than one round
 	}
 });
 //----------------------------------------------
@@ -302,6 +331,7 @@ $(document).ready(function(){
 
 	});
 
+	// You probably should prevent users who aren't logged in from sending chats, or possibly just give them an anonymous username
 	//Chat
 	$$.btnSend.on('click', function(e){
 		e.preventDefault();
