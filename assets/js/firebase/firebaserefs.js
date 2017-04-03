@@ -55,17 +55,37 @@ FirebaseInt.prototype.playerStart = function(name){
 
 //--------------------------------------
 
-FirebaseInt.prototype.dataSync = function () {
-	this.tableRef.on('value', function (tableSnap) {
-		if(tableSnap.val()){
+FirebaseInt.prototype.dataSync = function ($, pRef, oRef) {
 
-			this.displayData(tableSnap.val(), this.jq);
+	// Player listener
+	pRef.on('value', function (snap) {
 
+		if(snap.hasChildren()){
+			console.log(snap.hasChildren()+' = player');
+			var obj = snap.val();
+
+			$.nameDisplay.text(obj.name);
+			$.lose.text(obj.score.lose);
+			$.win.text(obj.score.win);
+		}
+	}.bind(this));
+
+	// Opponent Listener   (TODO) OREF IS NOT WORKING
+	oRef.on('value', function (snap) {
+		console.log(snap.hasChildren()+' = opp');
+
+		if(snap.hasChildren()){
+
+			var obj = snap.val();
+
+			$.oppNameDisplay.text(obj.name);
+			$.oppLose.text(obj.score.lose);
+			$.oppWin.text(obj.score.win);
 		}
 	}.bind(this));
 
 	this.counterRef.on('value', function (turnSnap) {
-		console.log(turnSnap.val());
+
 	}.bind(this));
 };
 
@@ -106,44 +126,26 @@ FirebaseInt.prototype.playerAssign = function () {
 //--------------------------------------
 
 FirebaseInt.prototype.getOppentKey = function () {
-	this.tableRef.on('child_added', function (tSnap) {
-		if(tSnap.val() === 'player' && tSnap.key !== this.playerKey){
-			this.opponentKey = tSnap.key;
-			this.opponentRef = this.gameRoomRef.child(tSnap.key);
+	this.tableRef.on('value', function (tSnap) {
 
-		}
+		tSnap.forEach(function (thisTableSnap) {
+			if(thisTableSnap.key !== this.playerKey && thisTableSnap.key !== 'Counter'){
+				this.opponentKey = thisTableSnap.key;
+				this.opponentRef = this.gameRoomRef.child(thisTableSnap.key);
+			}
+		}.bind(this));
 	}.bind(this));
 };
 
 //--------------------------------------
 
-FirebaseInt.prototype.displayData = function (obj, $) {
-
-	console.log(obj);
-
-/*	$.nameDisplay.text(obj.name);
-	$.lose.text(obj.score.lose);
-	$.win.text(obj.score.win);
-
-	$.oppNameDisplay.text(obj.name);
-	$.oppLose.text(obj.score.lose);
-	$.oppWin.text(obj.score.win);*/
-
-};
-
-//--------------------------------------
-
 FirebaseInt.prototype.turnInit = function (tKey) {
+
 	var tRef = this.db.ref('Game-Room/'+tKey);
 	this.counterRef = tRef.child('Counter');
 	this.counterRef.set({turn:0});
 
-	tRef.on('child_removed', function (snap) {
-		if(snap.val()){
-			console.log(snap.key+' was removed');
-			tRef.child('Counter').remove();
-		}
-	});
+	this.counterRef.onDisconnect().remove();
 };
 
 //--------------------------------------
