@@ -109,57 +109,64 @@ FirebaseInt.prototype.turnInit = function (tKey) {
 
 //--------------------------------------
 
-FirebaseInt.prototype.dataSync = function (r1,r2) {
+FirebaseInt.prototype.dataSync = function (playerKey,opponentKey) {
 	var p1 = new Promise(function (resolve, reject) {
-		if(r1){
-			console.log('r1 is true');
-			resolve(r1);
+		if (playerKey) {
+			resolve(playerKey);
 		}
 	});
+	p1.then(function (values) {
+		this.dataDisplay('player');
+	}.bind(this)).catch(function (reason) {
+		console.log(reason);
+	});
+
+
 	var p2 = new Promise(function (resolve, reject) {
-		if(r2){
-			console.log('r2 is true');
-			resolve(r2);
+		if (opponentKey) {
+			resolve(opponentKey);
 		}
 	});
-
-
-	Promise.all([p1, p2]).then(function(values) {
-		console.log('promise ok');
-		this.dataDisplay();
-	}.bind(this)).catch(function(reason) {
+	p2.then(function (values) {
+		this.dataDisplay('opp');
+	}.bind(this)).catch(function (reason) {
 		console.log(reason);
 	});
 };
 
 //--------------------------------------
 
-FirebaseInt.prototype.dataDisplay = function () {
+FirebaseInt.prototype.dataDisplay = function (position) {
 	var $ = this.jq;
 
-	// Player listener
-	this.playerRef.on('value', function (snap) {
-		console.log('player on');
-		if(snap.hasChildren()){
-			var obj = snap.val();
+	if(position === 'player'){
+		// Player listener
+		this.playerRef.on('value', function (snap) {
+			console.log('player on');
+			if(snap.hasChildren()){
+				var obj = snap.val();
 
-			$.nameDisplay.text(obj.name);
-			$.lose.text(obj.score.lose);
-			$.win.text(obj.score.win);
-		}
-	}.bind(this));
+				$.nameDisplay.text(obj.name);
+				$.lose.text(obj.score.lose);
+				$.win.text(obj.score.win);
+			}
+		}.bind(this));
+	}
+	if(position === 'opp'){
+		// Opponent Listener
+		this.opponentRef.on('value', function (snap) {
+			console.log('opponent on');
+			if(snap.hasChildren()){
+				var obj = snap.val();
 
-	// Opponent Listener
-	this.opponentRef.on('value', function (snap) {
-		console.log('opponent on');
-		if(snap.hasChildren()){
-			var obj = snap.val();
+				$.oppNameDisplay.text(obj.name);
+				$.oppLose.text(obj.score.lose);
+				$.oppWin.text(obj.score.win);
+			}
+		}.bind(this));
+	}
 
-			$.oppNameDisplay.text(obj.name);
-			$.oppLose.text(obj.score.lose);
-			$.oppWin.text(obj.score.win);
-		}
-	}.bind(this));
+
 
 /*	// Counter Listener
 	this.counterRef.on('value', function (turnSnap) {
@@ -169,8 +176,10 @@ FirebaseInt.prototype.dataDisplay = function () {
 
 //--------------------------------------
 FirebaseInt.prototype.connected = function () {
-	this.gameRoomRef.on('value', function (roomSnap) {
-		console.log('Room on "Value" Fired');
-		this.dataSync(this.playerRef,this.opponentRef);
+	this.gameRoomRef.on('child_changed', function (roomSnap) {
+		if(roomSnap.val()){
+			console.log('Room on "Value" Fired');
+			this.dataSync(this.playerRef,this.opponentRef);
+		}
 	}.bind(this));
 };
