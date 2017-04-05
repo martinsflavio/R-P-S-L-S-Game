@@ -1,40 +1,6 @@
-///////////////// Instantiating FB Obj //////////////////
-
-var fb = new FirebaseInt();
-
-////////////////// Assigning player /////////////////////
-fb.gameRoomRef.once('value').then( function (gameRoomSnap) {
-
-	if(gameRoomSnap.val()){
-		//-------------------------------------------------------------
-		var opponentFound = false;
-		// loop tru the tables looking for opponent
-		gameRoomSnap.forEach(function (thisTableSnap) {
-			if(thisTableSnap.numChildren() <= 1){
-				fb.playerAdd(fb.tableAdd(true,thisTableSnap.key));                     //
-				opponentFound = true;                                                  // Find a way to pass this logic to a prototype function
-			}                                                                        //
-		});
-		// if there's no opponent then create a new table
-		if(!opponentFound){
-			fb.playerAdd(fb.tableAdd(false));
-		}
-		//-------------------------------------------------------------
-	}else {
-		fb.playerAdd(fb.tableAdd(false));
-	}
-
-}).catch(function(err) {
-	console.log('Unable to access Game-Room!', err);
-});
-
-///////////////////////// End ///////////////////////////
-
-
-
-
 ////////////////// FB Obj Constructor ///////////////////
-function FirebaseInt() {
+function FirebaseInt(jqueryObj) {
+	this.jq = jqueryObj;
 	this.db = firebase.database();
 	this.gameRoomRef = firebase.database().ref('Game-Room');
 
@@ -42,38 +8,44 @@ function FirebaseInt() {
 	this.tableRef;
 	this.playerKey;
 	this.playerRef;
-	this.opponentRef = '';
-	this.opponentKey = 'Waiting';
+	this.opponentKey;
+	this.opponentRef;
+	this.counterRef;
+	this.playerAssign();
 }
-
 
 /////////////////// Prototypes /////////////////////////
 
-FirebaseInt.prototype.tableAdd = function (exists, tableKey) {
-	if(exists){
-		this.tableKey = tableKey;
-		this.tableRef = this.db.ref('Game-Room/'+tableKey);
-		return tableKey;
+FirebaseInt.prototype.tableAdd = function (tKey) {
+	var tableKey;
+	var tableRef;
+	if(tKey){
+		tableKey = tKey;
+		tableRef = this.db.ref('Game-Room/'+tKey);
 	}else {
-		this.tableKey = this.gameRoomRef.push('table').key;
-		this.tableRef = this.db.ref('Game-Room/'+this.tableKey);
-		return this.tableKey;
+		tableKey = this.gameRoomRef.push('table').key;
+		tableRef = this.db.ref('Game-Room/'+tableKey);
 	}
+	this.tableRef = tableRef;
+	this.tableKey = tableKey;
+	return tableKey;
 };
 
 //--------------------------------------
 
 FirebaseInt.prototype.playerAdd = function (tableKey) {
-	// Store playerKey
-	this.playerKey = this.gameRoomRef.child(tableKey).push('player').key;
-	// Return playerRef
+	// Store playerKey and create playerRef
+	this.playerKey = this.gameRoomRef.child(tableKey).push('ok').key;
 	this.playerRef = this.db.ref('Game-Room/'+tableKey+'/'+this.playerKey);
 	this.playerRef.onDisconnect().remove();
+	// Get opponent Key
+	this.getOpponentKey(tableKey, this.playerKey);
 };
 
 //--------------------------------------
 
-FirebaseInt.prototype.playerInit = function(name){
+FirebaseInt.prototype.playerStart = function(name){
+
 	// Initialize player
 	this.playerRef.set({
 		name: name,
@@ -85,3 +57,120 @@ FirebaseInt.prototype.playerInit = function(name){
 	});
 };
 
+//--------------------------------------
+
+FirebaseInt.prototype.playerAssign = function () {
+	this.gameRoomRef.once('value', function(roomSnap) {
+		var openTableCheck = true;
+
+		if (roomSnap.val()){
+			// look for open table to add a player
+			roomSnap.forEach(function (thisTableSnap) {
+				if(thisTableSnap.numChildren() <= 2 && openTableCheck){
+					this.turnInit(thisTableSnap.key);
+					this.playerAdd(this.tableAdd(thisTableSnap.key));
+					openTableCheck = false;
+				}
+			}.bind(this));
+
+			// if there's no open tables create one with player
+			if (openTableCheck){
+				this.playerAdd(this.tableAdd(false));
+			}
+		}else{
+			this.playerAdd(this.tableAdd(false));
+		}
+	}.bind(this));
+	// Invoking my promise my Promise
+	this.dataSync(this.tableKey,this.playerKey,this.opponentKey);
+	/////////////////////////////////
+};
+
+//--------------------------------------
+
+FirebaseInt.prototype.getOpponentKey = function (tKey, pKey) {
+
+	this.gameRoomRef.child(tKey).on('child_added', function (playerSnap) {
+		if( playerSnap.key !== pKey && playerSnap.key !== 'Counter'){
+			this.opponentKey = playerSnap.key;
+			this.opponentRef = this.tableRef.child(playerSnap.key);
+		}
+	}.bind(this));
+};
+
+//--------------------------------------
+
+FirebaseInt.prototype.turnInit = function (tKey) {
+	var tRef = this.db.ref('Game-Room/'+tKey);
+	this.counterRef = tRef.child('Counter');
+	this.counterRef.set({turn:0});
+	this.counterRef.onDisconnect().remove();
+};
+
+//--------------------------------------
+
+FirebaseInt.prototype.dataSync = function (r1,r2) {
+	var p1 = new Promise(function (resolve, reject) {
+		if(r1){
+			console.log('r1 is true');
+			resolve(r1);
+		}
+	});
+	var p2 = new Promise(function (resolve, reject) {
+		if(r2){
+			console.log('r2 is true');
+			resolve(r2);
+		}
+	});
+
+
+	Promise.all([p1, p2]).then(function(values) {
+		console.log('promise ok');
+		this.dataDisplay();
+	}.bind(this)).catch(function(reason) {
+		console.log(reason);
+	});
+};
+
+//--------------------------------------
+
+FirebaseInt.prototype.dataDisplay = function () {
+	var $ = this.jq;
+
+	// Player listener
+	this.playerRef.on('value', function (snap) {
+		console.log('player on');
+		if(snap.hasChildren()){
+			var obj = snap.val();
+
+			$.nameDisplay.text(obj.name);
+			$.lose.text(obj.score.lose);
+			$.win.text(obj.score.win);
+		}
+	}.bind(this));
+
+	// Opponent Listener
+	this.opponentRef.on('value', function (snap) {
+		console.log('opponent on');
+		if(snap.hasChildren()){
+			var obj = snap.val();
+
+			$.oppNameDisplay.text(obj.name);
+			$.oppLose.text(obj.score.lose);
+			$.oppWin.text(obj.score.win);
+		}
+	}.bind(this));
+
+/*	// Counter Listener
+	this.counterRef.on('value', function (turnSnap) {
+		console.log('Counter on');
+	}.bind(this));*/
+};
+
+//--------------------------------------
+FirebaseInt.prototype.connected = function () {
+	this.gameRoomRef.on('value', function (roomSnap) {
+		console.log('Room on "Value" Fired');
+		this.dataSync(this.playerRef,this.opponentRef);
+	}.bind(this));
+};
