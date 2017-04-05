@@ -38,6 +38,8 @@ FirebaseInt.prototype.playerAdd = function (tableKey) {
 	this.playerKey = this.gameRoomRef.child(tableKey).push('ok').key;
 	this.playerRef = this.db.ref('Game-Room/'+tableKey+'/'+this.playerKey);
 	this.playerRef.onDisconnect().remove();
+	// Get opponent Key
+	this.getOpponentKey(tableKey, this.playerKey);
 };
 
 //--------------------------------------
@@ -53,49 +55,6 @@ FirebaseInt.prototype.playerStart = function(name){
 			lose: 0
 		}
 	});
-};
-
-//--------------------------------------
-
-FirebaseInt.prototype.dataSync = function ($) {
-
-	// Table Listener
-	this.tableRef.on('child_added', function (playerSnap) {
-		console.log('table on');
-		console.log(playerSnap.key);
-		if(playerSnap.key !== 'Counter'){
-			this.getOpponentKey(playerSnap.key);
-		}
-	}.bind(this));
-
-	// Player listener
-	this.playerRef.on('value', function (snap) {
-		console.log('player on');
-		if(snap.hasChildren()){
-			var obj = snap.val();
-
-			$.nameDisplay.text(obj.name);
-			$.lose.text(obj.score.lose);
-			$.win.text(obj.score.win);
-		}
-	}.bind(this));
-
-	// Opponent Listener
-	this.opponentRef.on('value', function (snap) {
-		console.log('opponent on');
-		if(snap.hasChildren()){
-			var obj = snap.val();
-
-			$.oppNameDisplay.text(obj.name);
-			$.oppLose.text(obj.score.lose);
-			$.oppWin.text(obj.score.win);
-		}
-	}.bind(this));
-
-	// Counter Listener
-	this.counterRef.on('value', function (turnSnap) {
-		console.log('Counter on');
-	}.bind(this));
 };
 
 //--------------------------------------
@@ -122,15 +81,21 @@ FirebaseInt.prototype.playerAssign = function () {
 			this.playerAdd(this.tableAdd(false));
 		}
 	}.bind(this));
+	// Invoking my promise my Promise
+	this.dataSync(this.tableKey,this.playerKey,this.opponentKey);
+	/////////////////////////////////
 };
 
 //--------------------------------------
 
-FirebaseInt.prototype.getOpponentKey = function (pKey) {
-	if( pKey !== this.playerKey && pKey !== 'Counter'){
-		this.opponentKey = pKey;
-		this.opponentRef = this.tableRef.child(pKey);
-	}
+FirebaseInt.prototype.getOpponentKey = function (tKey, pKey) {
+
+	this.gameRoomRef.child(tKey).on('child_added', function (playerSnap) {
+		if( playerSnap.key !== pKey && playerSnap.key !== 'Counter'){
+			this.opponentKey = playerSnap.key;
+			this.opponentRef = this.tableRef.child(playerSnap.key);
+		}
+	}.bind(this));
 };
 
 //--------------------------------------
@@ -144,4 +109,68 @@ FirebaseInt.prototype.turnInit = function (tKey) {
 
 //--------------------------------------
 
+FirebaseInt.prototype.dataSync = function (r1,r2) {
+	var p1 = new Promise(function (resolve, reject) {
+		if(r1){
+			console.log('r1 is true');
+			resolve(r1);
+		}
+	});
+	var p2 = new Promise(function (resolve, reject) {
+		if(r2){
+			console.log('r2 is true');
+			resolve(r2);
+		}
+	});
 
+
+	Promise.all([p1, p2]).then(function(values) {
+		console.log('promise ok');
+		this.dataDisplay();
+	}.bind(this)).catch(function(reason) {
+		console.log(reason);
+	});
+};
+
+//--------------------------------------
+
+FirebaseInt.prototype.dataDisplay = function () {
+	var $ = this.jq;
+
+	// Player listener
+	this.playerRef.on('value', function (snap) {
+		console.log('player on');
+		if(snap.hasChildren()){
+			var obj = snap.val();
+
+			$.nameDisplay.text(obj.name);
+			$.lose.text(obj.score.lose);
+			$.win.text(obj.score.win);
+		}
+	}.bind(this));
+
+	// Opponent Listener
+	this.opponentRef.on('value', function (snap) {
+		console.log('opponent on');
+		if(snap.hasChildren()){
+			var obj = snap.val();
+
+			$.oppNameDisplay.text(obj.name);
+			$.oppLose.text(obj.score.lose);
+			$.oppWin.text(obj.score.win);
+		}
+	}.bind(this));
+
+/*	// Counter Listener
+	this.counterRef.on('value', function (turnSnap) {
+		console.log('Counter on');
+	}.bind(this));*/
+};
+
+//--------------------------------------
+FirebaseInt.prototype.connected = function () {
+	this.gameRoomRef.on('value', function (roomSnap) {
+		console.log('Room on "Value" Fired');
+		this.dataSync(this.playerRef,this.opponentRef);
+	}.bind(this));
+};
